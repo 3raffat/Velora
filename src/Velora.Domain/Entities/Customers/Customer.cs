@@ -11,9 +11,9 @@ namespace Velora.Domain.Entities.Customers;
 public sealed class Customer : BaseEntity
 {
     public Guid IdentityUserId { get; private set; }
-    public Name? FirstName { get; private set; }
-    public Name? LastName { get; private set; }
-    public Email? Email { get; private set; }
+    public Name FirstName { get; private set; } = null!;
+    public Name LastName { get; private set; } = null!;
+    public Email Email { get; private set; } = null!;
     public string PhoneNumber { get; private set; } = string.Empty;
     public DateOnly DateOfBirth { get; private set; }
     public bool IsProfileCompleted { get; private set; }

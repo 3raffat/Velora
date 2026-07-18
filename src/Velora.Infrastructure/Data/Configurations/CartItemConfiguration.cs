@@ -23,6 +23,11 @@ public sealed class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
                     .HasPrecision(18, 2)
                     .IsRequired();
 
+        builder.HasOne(ci => ci.Product)
+               .WithMany()
+               .HasForeignKey(ci => ci.ProductId)
+               .OnDelete(DeleteBehavior.NoAction);
+
         builder.Ignore(ci => ci.TotalPrice);
     }
 }

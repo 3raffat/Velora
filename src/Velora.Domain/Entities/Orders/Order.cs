@@ -27,7 +27,6 @@ public sealed class Order : BaseEntity
 
     public Cancellation? Cancellation { get; private set; }
 
-    public Guid? PaymentId { get; private set; }
     public Payment? Payment { get; private set; }
 
     private readonly List<OrderItem> _orderItems = new();
@@ -79,20 +78,6 @@ public sealed class Order : BaseEntity
         _orderItems.Add(item);
     }
 
-    public void StartProcessing(Guid paymentId)
-    {
-        if (OrderStatus != OrderStatus.Pending)
-            throw new InvalidOperationException("Only a pending order can start processing.");
-
-        if (_orderItems.Count == 0)
-            throw new InvalidOperationException("Cannot process an order with no items.");
-
-        if (paymentId == Guid.Empty)
-            throw new ArgumentException("Payment Id is required.", nameof(paymentId));
-
-        PaymentId = paymentId;
-        OrderStatus = OrderStatus.Processing;
-    }
 
     public void Ship()
     {

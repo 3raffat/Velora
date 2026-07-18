@@ -32,5 +32,11 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(p => p.PaymentDate)
             .IsRequired();
 
+        builder.HasOne(p => p.Order)
+               .WithOne(o => o.Payment)
+               .HasForeignKey<Payment>(p => p.OrderId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+
     }
 }

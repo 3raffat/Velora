@@ -38,6 +38,10 @@ public sealed class CancellationConfiguration : IEntityTypeConfiguration<Cancell
         builder.Property(c => c.Remarks)
             .HasMaxLength(1000);
 
+        builder.HasOne(o => o.Order)
+            .WithOne(c => c.Cancellation)
+            .HasForeignKey<Cancellation>(c => c.OrderId)
+            .OnDelete(DeleteBehavior.NoAction);
 
     }
 }

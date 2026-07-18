@@ -32,6 +32,16 @@ public sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
         builder.Property(r => r.TransactionId)
             .HasMaxLength(255);
 
+        builder.HasOne(r => r.Payment)
+               .WithOne(p => p.Refund)
+               .HasForeignKey<Refund>(r => r.PaymentId)
+               .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(c => c.Cancellation)
+              .WithOne(p => p.Refund)
+              .HasForeignKey<Refund>(r => r.CancellationId)
+              .OnDelete(DeleteBehavior.NoAction);
+
         builder.Property(r => r.ProcessedBy);
 
     }

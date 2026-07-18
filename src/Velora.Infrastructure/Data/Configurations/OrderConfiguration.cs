@@ -34,6 +34,15 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Ignore(o => o.TotalAmount);
 
+        builder.HasOne(o => o.ShippingAddress)
+                     .WithMany()
+                     .HasForeignKey(o => o.ShippingAddressId)
+                     .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(o => o.BillingAddress)
+               .WithMany()
+               .HasForeignKey(o => o.BillingAddressId)
+               .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasMany(o => o.OrderItems)
             .WithOne(oi => oi.Order)

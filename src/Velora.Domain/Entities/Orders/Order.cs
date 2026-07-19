@@ -1,20 +1,23 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Customers;
+using Velora.Domain.Entities.Customers.Exceptions;
 using Velora.Domain.Entities.Orders.Enums;
+using Velora.Domain.Entities.Orders.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
 
 public sealed class Order : BaseEntity
 {
-
     public string OrderNumber { get; private set; } = string.Empty;
     public DateTime OrderDate { get; private set; }
-    public decimal ShippingCost { get; private set; }
+    public Money ShippingCost { get; private set; } = null!;
     public OrderStatus OrderStatus { get; private set; }
 
-    public decimal TotalBaseAmount => _orderItems.Sum(i => i.UnitPrice * i.Quantity);
+    public decimal TotalBaseAmount => _orderItems.Sum(i => i.UnitPrice.Amount * i.Quantity);
     public decimal TotalDiscountAmount => _orderItems.Sum(i => i.Discount);
-    public decimal TotalAmount => TotalBaseAmount - TotalDiscountAmount + ShippingCost;
+    public decimal TotalAmount => TotalBaseAmount - TotalDiscountAmount + ShippingCost.Amount;
 
     public Guid CustomerId { get; private set; }
     public Customer Customer { get; private set; } = null!;
@@ -34,8 +37,14 @@ public sealed class Order : BaseEntity
 
     private Order() { }
 
-    private Order(Guid id, string orderNumber, Guid customerId, Guid billingAddressId,
-        Guid shippingAddressId, decimal shippingCost)
+    private Order(
+        Guid id,
+        string orderNumber,
+        Guid customerId,
+        Guid billingAddressId,
+        Guid shippingAddressId,
+        Money shippingCost
+    )
         : base(id)
     {
         OrderNumber = orderNumber;
@@ -47,25 +56,34 @@ public sealed class Order : BaseEntity
         OrderStatus = OrderStatus.Pending;
     }
 
-    public static Order Create(string orderNumber, Guid customerId, Guid billingAddressId,
-        Guid shippingAddressId, decimal shippingCost)
+    public static Order Create(
+        string orderNumber,
+        Guid customerId,
+        Guid billingAddressId,
+        Guid shippingAddressId,
+        Money shippingCost
+    )
     {
         if (string.IsNullOrWhiteSpace(orderNumber))
-            throw new ArgumentException("Order number is required.", nameof(orderNumber));
+            throw new RequiredFieldException(nameof(orderNumber));
 
         if (customerId == Guid.Empty)
-            throw new ArgumentException("Customer Id is required.", nameof(customerId));
+            throw new RequiredFieldException(nameof(customerId));
 
         if (billingAddressId == Guid.Empty)
-            throw new ArgumentException("Billing address Id is required.", nameof(billingAddressId));
+            throw new RequiredFieldException(nameof(billingAddressId));
 
         if (shippingAddressId == Guid.Empty)
-            throw new ArgumentException("Shipping address Id is required.", nameof(shippingAddressId));
+            throw new RequiredFieldException(nameof(shippingAddressId));
 
-        if (shippingCost < 0)
-            throw new ArgumentOutOfRangeException(nameof(shippingCost), "Shipping cost cannot be negative.");
-
-        return new Order(Guid.NewGuid(), orderNumber.Trim(), customerId, billingAddressId, shippingAddressId, shippingCost);
+        return new Order(
+            Guid.NewGuid(),
+            orderNumber.Trim(),
+            customerId,
+            billingAddressId,
+            shippingAddressId,
+            shippingCost
+        );
     }
 
     public void AddItem(OrderItem item)
@@ -73,16 +91,25 @@ public sealed class Order : BaseEntity
         ArgumentNullException.ThrowIfNull(item);
 
         if (OrderStatus != OrderStatus.Pending)
-            throw new InvalidOperationException("Cannot modify an order that is no longer pending.");
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(AddItem),
+                OrderStatus,
+                OrderStatus.Pending
+            );
 
         _orderItems.Add(item);
     }
 
-
     public void Ship()
     {
         if (OrderStatus != OrderStatus.Processing)
-            throw new InvalidOperationException("Only an order being processed can be shipped.");
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(Ship),
+                OrderStatus,
+                OrderStatus.Processing
+            );
 
         OrderStatus = OrderStatus.Shipped;
     }
@@ -90,7 +117,12 @@ public sealed class Order : BaseEntity
     public void Deliver()
     {
         if (OrderStatus != OrderStatus.Shipped)
-            throw new InvalidOperationException("Only a shipped order can be marked delivered.");
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(Deliver),
+                OrderStatus,
+                OrderStatus.Shipped
+            );
 
         OrderStatus = OrderStatus.Delivered;
     }
@@ -98,10 +130,15 @@ public sealed class Order : BaseEntity
     public void Cancel()
     {
         if (OrderStatus is OrderStatus.Shipped or OrderStatus.Delivered)
-            throw new InvalidOperationException("Cannot cancel an order that has already shipped.");
+            throw new InvalidStatusException("Cannot cancel an order that has already shipped.");
 
         if (OrderStatus == OrderStatus.Canceled)
-            throw new InvalidOperationException("Order is already canceled.");
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(Cancel),
+                OrderStatus,
+                OrderStatus.Canceled
+            );
 
         OrderStatus = OrderStatus.Canceled;
     }

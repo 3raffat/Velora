@@ -1,5 +1,6 @@
 using Velora.Domain.Common;
 using Velora.Domain.Common.ValueObjects;
+using Velora.Domain.Entities.Products.Exceptions;
 
 namespace Velora.Domain.Entities.Products;
 
@@ -35,27 +36,23 @@ public sealed class Category : BaseEntity
     private static string ValidateAndNormalize(string description)
     {
         if (string.IsNullOrWhiteSpace(description))
-            throw new ArgumentException("Description is required.", nameof(description));
+            throw new InvalidDescriptionException();
 
         description = description.Trim();
 
         if (description.Length < 10)
-            throw new ArgumentOutOfRangeException(
-                nameof(description),
-                "Description must be at least 10 characters."
-            );
+            throw new InvalidDescriptionException(10, true);
 
-        if (description.Length > 1000)
-            throw new ArgumentOutOfRangeException(
-                nameof(description),
-                "Description cannot exceed 1000 characters."
-            );
+        if (description.Length > 500)
+            throw new InvalidDescriptionException(500);
 
         return description;
     }
 
-    public void Update(string description)
+    public void Update(string name, string description)
     {
+        Name = Name.Create(name);
+
         Description = ValidateAndNormalize(description);
     }
 

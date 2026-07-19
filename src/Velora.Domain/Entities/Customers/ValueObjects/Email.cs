@@ -1,5 +1,6 @@
 using System.Net.Mail;
-using Velora.Domain.Entities.Customers.Errors;
+using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Entities.Customers.Exceptions;
 
 namespace Velora.Domain.Entities.Customers.ValueObjects;
 
@@ -16,7 +17,7 @@ public sealed record Email
     public static Email Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidEmailException("Email is required.");
+            throw new RequiredFieldException(nameof(value));
 
         value = value.Trim();
 

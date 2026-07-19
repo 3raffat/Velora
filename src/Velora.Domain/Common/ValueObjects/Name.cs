@@ -1,4 +1,5 @@
-using Velora.Domain.Entities.Customers.Errors;
+using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Entities.Customers.Exceptions;
 
 namespace Velora.Domain.Common.ValueObjects;
 
@@ -16,7 +17,7 @@ public sealed record Name
     public static Name Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidNameException("name is required");
+            throw new RequiredFieldException(nameof(value));
 
         var trimmed = value.Trim();
 

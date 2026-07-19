@@ -1,5 +1,8 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Orders.Enums;
+using Velora.Domain.Entities.Orders.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
 
@@ -7,7 +10,7 @@ public sealed class Payment : BaseEntity
 {
     public PaymentMethod PaymentMethod { get; private set; }
     public string? TransactionId { get; private set; }
-    public decimal Amount { get; private set; }
+    public Money Amount { get; private set; } = null!;
     public DateTime PaymentDate { get; private set; }
     public PaymentStatus Status { get; private set; }
 
@@ -18,7 +21,7 @@ public sealed class Payment : BaseEntity
 
     private Payment() { }
 
-    private Payment(Guid id, PaymentMethod paymentMethod, decimal amount, Guid orderId)
+    private Payment(Guid id, PaymentMethod paymentMethod, Money amount, Guid orderId)
         : base(id)
     {
         PaymentMethod = paymentMethod;
@@ -28,16 +31,10 @@ public sealed class Payment : BaseEntity
         Status = PaymentStatus.Pending;
     }
 
-    public static Payment Create(PaymentMethod paymentMethod, decimal amount, Guid orderId)
+    public static Payment Create(PaymentMethod paymentMethod, Money amount, Guid orderId)
     {
-        if (amount <= 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(amount),
-                "Amount must be greater than zero."
-            );
-
         if (orderId == Guid.Empty)
-            throw new ArgumentException("Order Id is required.", nameof(orderId));
+            throw new RequiredFieldException(nameof(orderId));
 
         return new Payment(Guid.NewGuid(), paymentMethod, amount, orderId);
     }
@@ -45,7 +42,7 @@ public sealed class Payment : BaseEntity
     public void ConfirmTransaction(string transactionId)
     {
         if (string.IsNullOrWhiteSpace(transactionId))
-            throw new ArgumentException("Transaction Id is required.", nameof(transactionId));
+            throw new RequiredFieldException(nameof(transactionId));
 
         if (Status != PaymentStatus.Pending)
             throw new InvalidOperationException("Only a pending payment can be confirmed.");

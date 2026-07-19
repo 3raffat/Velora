@@ -1,5 +1,8 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
 using Velora.Domain.Entities.Customers;
+using Velora.Domain.Entities.Customers.Exceptions;
+using Velora.Domain.Entities.Products.Exceptions;
 using Velora.Domain.Entities.Products.ValueObjects;
 
 namespace Velora.Domain.Entities.Products;
@@ -32,16 +35,13 @@ public sealed class Feedback : AuditableEntity
             throw new ArgumentNullException(nameof(rating));
 
         if (customerId == Guid.Empty)
-            throw new ArgumentException("Customer Id is required.", nameof(customerId));
+            throw new RequiredFieldException(nameof(customerId));
 
         if (productId == Guid.Empty)
-            throw new ArgumentException("Product Id is required.", nameof(productId));
+            throw new RequiredFieldException(nameof(productId));
 
         if (comment is not null && comment.Length > 500)
-            throw new ArgumentOutOfRangeException(
-                nameof(comment),
-                "Comment cannot exceed 500 characters."
-            );
+            throw new InvalidCommantException(500);
 
         return new Feedback(Guid.NewGuid(), rating, comment, customerId, productId);
     }

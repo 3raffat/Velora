@@ -1,3 +1,5 @@
+using Velora.Domain.Entities.Products.Exceptions;
+
 namespace Velora.Domain.Entities.Products.ValueObjects;
 
 public sealed record Rating
@@ -12,7 +14,7 @@ public sealed record Rating
     public static Rating Create(byte value)
     {
         if (value < 1 || value > 5)
-            throw new ArgumentOutOfRangeException(nameof(value), "Rating must be between 1 and 5.");
+            throw new InvalidRatingException(value);
 
         return new Rating(value);
     }

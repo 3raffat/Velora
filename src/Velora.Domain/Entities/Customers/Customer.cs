@@ -1,6 +1,7 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
 using Velora.Domain.Common.ValueObjects;
-using Velora.Domain.Entities.Customers.Errors;
+using Velora.Domain.Entities.Customers.Exceptions;
 using Velora.Domain.Entities.Customers.ValueObjects;
 using Velora.Domain.Entities.Orders;
 using Velora.Domain.Entities.Products;
@@ -14,7 +15,7 @@ public sealed class Customer : BaseEntity
     public Name FirstName { get; private set; } = null!;
     public Name LastName { get; private set; } = null!;
     public Email Email { get; private set; } = null!;
-    public string PhoneNumber { get; private set; } = string.Empty;
+    public PhoneNumber PhoneNumber { get; private set; } = null!;
     public DateOnly DateOfBirth { get; private set; }
     public bool IsProfileCompleted { get; private set; }
 
@@ -40,7 +41,7 @@ public sealed class Customer : BaseEntity
     public static Customer Create(Guid identityUserId)
     {
         if (Guid.Empty == identityUserId)
-            throw new InvalidIdentityUserIdException();
+            throw new RequiredFieldException(nameof(identityUserId));
 
         return new Customer(identityUserId, Guid.NewGuid());
     }
@@ -49,26 +50,23 @@ public sealed class Customer : BaseEntity
         Name firstName,
         Name lastName,
         Email email,
-        string phoneNumber,
+        PhoneNumber phoneNumber,
         DateOnly dateOfBirth
     )
     {
         if (IsProfileCompleted)
             throw new ProfileAlreadyCompletedException();
 
-        if (string.IsNullOrWhiteSpace(phoneNumber))
-            throw new ArgumentException("Phone number is required.", nameof(phoneNumber));
-
         if (dateOfBirth == default)
-            throw new ArgumentException("Birth date is required.", nameof(dateOfBirth));
+            throw new InvalidDateOfBirthException();
 
         if (dateOfBirth > DateOnly.FromDateTime(DateTime.UtcNow))
-            throw new ArgumentException("Birth date cannot be in the future.", nameof(dateOfBirth));
+            throw new InvalidDateOfBirthException(dateOfBirth);
 
         FirstName = firstName;
         LastName = lastName;
         Email = email;
-        PhoneNumber = phoneNumber.Trim();
+        PhoneNumber = phoneNumber;
         DateOfBirth = dateOfBirth;
         IsProfileCompleted = true;
     }

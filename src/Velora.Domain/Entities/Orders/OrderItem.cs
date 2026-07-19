@@ -1,14 +1,18 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Common.ValueObjects;
+using Velora.Domain.Entities.Orders.Exceptions;
 using Velora.Domain.Entities.Products;
+using Velora.Domain.Entities.ShoppingCart.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
 
 public sealed class OrderItem : BaseEntity
 {
     public int Quantity { get; private set; }
-    public decimal UnitPrice { get; private set; }
+    public Money UnitPrice { get; private set; } = null!;
     public decimal Discount { get; private set; }
-    public decimal TotalPrice => (UnitPrice * Quantity) - Discount;
+    public decimal TotalPrice => (UnitPrice.Amount * Quantity) - Discount;
 
     public Guid OrderId { get; private set; }
     public Order Order { get; private set; } = null!;
@@ -23,7 +27,7 @@ public sealed class OrderItem : BaseEntity
         Guid orderId,
         Guid productId,
         int quantity,
-        decimal unitPrice,
+        Money unitPrice,
         decimal discount
     )
         : base(id)
@@ -39,33 +43,26 @@ public sealed class OrderItem : BaseEntity
         Guid orderId,
         Guid productId,
         int quantity,
-        decimal unitPrice,
+        Money unitPrice,
         decimal discount = 0
     )
     {
         if (orderId == Guid.Empty)
-            throw new ArgumentException("Order Id is required.", nameof(orderId));
+            throw new RequiredFieldException(nameof(orderId));
 
         if (productId == Guid.Empty)
-            throw new ArgumentException("Product Id is required.", nameof(productId));
+            throw new RequiredFieldException(nameof(productId));
 
         if (quantity < 1)
-            throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be at least 1.");
-
-        if (unitPrice < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(unitPrice),
-                "Unit price cannot be negative."
-            );
+            throw new InvalidQuantityException();
 
         if (discount < 0)
-            throw new ArgumentOutOfRangeException(nameof(discount), "Discount cannot be negative.");
+            throw new InvalidDiscountException(discount);
 
-        if (discount > unitPrice * quantity)
-            throw new ArgumentOutOfRangeException(
-                nameof(discount),
-                "Discount cannot exceed the item's total price."
-            );
+        var total = unitPrice.Amount * quantity;
+
+        if (discount > total)
+            throw new InvalidDiscountException(discount, total);
 
         return new OrderItem(Guid.NewGuid(), orderId, productId, quantity, unitPrice, discount);
     }

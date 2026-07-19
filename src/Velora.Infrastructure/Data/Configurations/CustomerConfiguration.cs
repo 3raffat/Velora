@@ -30,6 +30,14 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
                      .HasMaxLength(100)
                      .IsRequired();
 
+              builder.Property(c => c.PhoneNumber)
+                     .HasConversion(
+                         phoneNumber => phoneNumber.Value,
+                         value => PhoneNumber.Create(value)
+                     )
+                     .HasMaxLength(100)
+                     .IsRequired();
+
               builder.Property(c => c.Email)
                       .HasConversion(
                               email => email.Value,

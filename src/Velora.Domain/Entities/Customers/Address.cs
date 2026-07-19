@@ -1,5 +1,7 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
 using Velora.Domain.Entities.Customers.Constants;
+using Velora.Domain.Entities.Customers.Exceptions;
 
 namespace Velora.Domain.Entities.Customers;
 
@@ -84,54 +86,49 @@ public sealed class Address : BaseEntity
     )
     {
         if (string.IsNullOrWhiteSpace(addressLine1))
-            throw new ArgumentException("Address Line 1 is required.", nameof(addressLine1));
+            throw new InvalidAddressException("Address Line 1 is required.");
 
         if (addressLine1.Length > AddressConstraints.AddressLineMaxLength)
-            throw new ArgumentException(
-                $"Address Line 1 cannot exceed {AddressConstraints.AddressLineMaxLength} characters.",
-                nameof(addressLine1)
+            throw new InvalidAddressException(
+                $"Address Line 1 cannot exceed {AddressConstraints.AddressLineMaxLength} characters."
             );
 
         if (
             addressLine2 is not null
             && addressLine2.Length > AddressConstraints.AddressLineMaxLength
         )
-            throw new ArgumentException(
-                $"Address Line 2 cannot exceed {AddressConstraints.AddressLineMaxLength} characters.",
-                nameof(addressLine2)
+            throw new InvalidAddressException(
+                $"Address Line 2 cannot exceed {AddressConstraints.AddressLineMaxLength} characters."
             );
 
         if (string.IsNullOrWhiteSpace(city))
-            throw new ArgumentException("City is required.", nameof(city));
+            throw new InvalidAddressException("City is required.");
 
         if (city.Length > AddressConstraints.CityMaxLength)
-            throw new ArgumentException(
-                $"City cannot exceed {AddressConstraints.CityMaxLength} characters.",
-                nameof(city)
+            throw new InvalidAddressException(
+                $"City cannot exceed {AddressConstraints.CityMaxLength} characters."
             );
 
         if (string.IsNullOrWhiteSpace(state))
-            throw new ArgumentException("State is required.", nameof(state));
+            throw new InvalidAddressException("State is required.");
 
         if (state.Length > AddressConstraints.StateMaxLength)
-            throw new ArgumentException(
-                $"State cannot exceed {AddressConstraints.StateMaxLength} characters.",
-                nameof(state)
+            throw new InvalidAddressException(
+                $"State cannot exceed {AddressConstraints.StateMaxLength} characters."
             );
 
         if (string.IsNullOrWhiteSpace(country))
-            throw new ArgumentException("Country is required.", nameof(country));
+            throw new InvalidAddressException("Country is required.");
 
         if (country.Length > AddressConstraints.CountryMaxLength)
-            throw new ArgumentException(
-                $"Country cannot exceed {AddressConstraints.CountryMaxLength} characters.",
-                nameof(country)
+            throw new InvalidAddressException(
+                $"Country cannot exceed {AddressConstraints.CountryMaxLength} characters."
             );
     }
 
     private static void ValidateCustomerId(Guid customerId)
     {
         if (customerId == Guid.Empty)
-            throw new ArgumentException("Customer Id is required.", nameof(customerId));
+            throw new RequiredFieldException(nameof(customerId));
     }
 }

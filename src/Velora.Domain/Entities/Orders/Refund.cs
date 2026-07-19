@@ -1,11 +1,13 @@
 using Velora.Domain.Common;
+using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Orders.Enums;
 
 namespace Velora.Domain.Entities.Orders;
 
 public sealed class Refund : BaseEntity
 {
-    public decimal Amount { get; private set; }
+    public Money Amount { get; private set; } = null!;
     public RefundStatus Status { get; private set; }
     public PaymentMethod RefundMethod { get; private set; }
     public string? RefundReason { get; private set; }
@@ -22,7 +24,7 @@ public sealed class Refund : BaseEntity
 
     private Refund(
         Guid id,
-        decimal amount,
+        Money amount,
         PaymentMethod refundMethod,
         string? refundReason,
         Guid paymentId,
@@ -39,24 +41,18 @@ public sealed class Refund : BaseEntity
     }
 
     public static Refund Create(
-        decimal amount,
+        Money amount,
         PaymentMethod refundMethod,
         string? refundReason,
         Guid paymentId,
         Guid cancellationId
     )
     {
-        if (amount <= 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(amount),
-                "Amount must be greater than zero."
-            );
-
         if (paymentId == Guid.Empty)
-            throw new ArgumentException("Payment Id is required.", nameof(paymentId));
+            throw new RequiredFieldException(nameof(paymentId));
 
         if (cancellationId == Guid.Empty)
-            throw new ArgumentException("Cancellation Id is required.", nameof(cancellationId));
+            throw new RequiredFieldException(nameof(cancellationId));
 
         return new Refund(
             Guid.NewGuid(),
@@ -71,7 +67,12 @@ public sealed class Refund : BaseEntity
     public void Approve()
     {
         if (Status != RefundStatus.Pending)
-            throw new InvalidOperationException("Only a pending refund can be approved.");
+            throw new InvalidStatusException(
+                nameof(Refund),
+                nameof(Approve),
+                Status,
+                RefundStatus.Pending
+            );
 
         Status = RefundStatus.Approved;
     }
@@ -79,10 +80,15 @@ public sealed class Refund : BaseEntity
     public void Complete(Guid processedBy, string transactionId)
     {
         if (Status != RefundStatus.Approved)
-            throw new InvalidOperationException("Only an approved refund can be completed.");
+            throw new InvalidStatusException(
+                nameof(Refund),
+                nameof(Complete),
+                Status,
+                RefundStatus.Approved
+            );
 
         if (string.IsNullOrWhiteSpace(transactionId))
-            throw new ArgumentException("Transaction Id is required.", nameof(transactionId));
+            throw new RequiredFieldException(nameof(transactionId));
 
         ProcessedBy = processedBy;
         TransactionId = transactionId;
@@ -92,10 +98,15 @@ public sealed class Refund : BaseEntity
     public void Reject(string reason)
     {
         if (Status != RefundStatus.Pending)
-            throw new InvalidOperationException("Only a pending refund can be rejected.");
+            throw new InvalidStatusException(
+                nameof(Refund),
+                nameof(Reject),
+                Status,
+                RefundStatus.Pending
+            );
 
         if (string.IsNullOrWhiteSpace(reason))
-            throw new ArgumentException("A rejection reason is required.", nameof(reason));
+            throw new RequiredFieldException(nameof(reason));
 
         RefundReason = reason.Trim();
         Status = RefundStatus.Rejected;

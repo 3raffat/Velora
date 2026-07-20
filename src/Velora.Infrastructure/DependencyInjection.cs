@@ -1,52 +1,60 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Velora.Infrastructure.Data;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Velora.Application.Common.Interfaces;
+using Velora.Infrastructure.Data;
 
 namespace Velora.Infrastructure;
 
 public static class DependencyInjection
 {
-
-
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration cfg)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration cfg
+    )
     {
-
-        services.AddDbConnection(cfg)
-                .AddIdentityConfiguration();
-
+        services.AddDbConnection(cfg).AddIdentityConfiguration();
 
         return services;
     }
 
-    public static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration cfg)
+    public static IServiceCollection AddDbConnection(
+        this IServiceCollection services,
+        IConfiguration cfg
+    )
     {
+        services.AddDbContext<VeloraContext>(
+            (sp, opt) =>
+            {
+                opt.UseSqlServer(cfg.GetConnectionString("DefaultConnection"));
+            }
+        );
 
-        services.AddDbContext<VeloraContext>((sp, opt) =>
-        {
-            opt.UseSqlServer(cfg.GetConnectionString("DefaultConnection"));
-        });
+        services.AddScoped<IVeloraContext>(sp => sp.GetRequiredService<VeloraContext>());
 
         return services;
     }
+
     public static IServiceCollection AddIdentityConfiguration(this IServiceCollection services)
     {
         services.AddDataProtection();
 
-        services.AddIdentityCore<IdentityUser<Guid>>(opt =>
-        {
-            opt.Password.RequireDigit = true;
-            opt.Password.RequireLowercase = true;
-            opt.Password.RequireUppercase = true;
-            opt.Password.RequireNonAlphanumeric = true;
-            opt.Password.RequiredLength = 8;
-            opt.Password.RequiredUniqueChars = 1;
+        services
+            .AddIdentityCore<IdentityUser<Guid>>(opt =>
+            {
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireLowercase = true;
+                opt.Password.RequireUppercase = true;
+                opt.Password.RequireNonAlphanumeric = true;
+                opt.Password.RequiredLength = 8;
+                opt.Password.RequiredUniqueChars = 1;
 
-            opt.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
-        }).AddRoles<IdentityRole<Guid>>()
-        .AddEntityFrameworkStores<VeloraContext>()
-        .AddDefaultTokenProviders();
+                opt.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<VeloraContext>()
+            .AddDefaultTokenProviders();
 
         return services;
     }

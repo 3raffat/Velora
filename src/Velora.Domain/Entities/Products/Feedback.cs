@@ -41,7 +41,7 @@ public sealed class Feedback : AuditableEntity
             throw new RequiredFieldException(nameof(productId));
 
         if (comment is not null && comment.Length > 500)
-            throw new InvalidCommantException(500);
+            throw new InvalidCommentException(500);
 
         return new Feedback(Guid.NewGuid(), rating, comment, customerId, productId);
     }

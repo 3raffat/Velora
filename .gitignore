@@ -20,8 +20,5 @@ bld/
 appsettings.Local.json
 
 .vscode/
-Velora.Application/
-Velora.Api/
-Velora.Infrastructure/
-
 tests/
+

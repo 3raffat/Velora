@@ -102,13 +102,25 @@ public class Product : BaseEntity
         CategoryId = categoryId;
     }
 
-    public void UpdateStock(int quantity)
+    public void IncreaseStock(int quantity)
     {
-        if (quantity < 0)
+        if (quantity <= 0)
             throw new InvalidStockQuantityException(quantity);
 
-        StockQuantity = quantity;
-        IsAvailable = quantity > 0;
+        StockQuantity += quantity;
+        IsAvailable = StockQuantity > 0;
+    }
+
+    public void DecreaseStock(int quantity)
+    {
+        if (quantity <= 0)
+            throw new InvalidStockQuantityException(quantity);
+
+        if (quantity > StockQuantity)
+            throw new InsufficientStockException(StockQuantity, quantity);
+
+        StockQuantity -= quantity;
+        IsAvailable = StockQuantity > 0;
     }
 
     public void UpdatePrice(Money price)

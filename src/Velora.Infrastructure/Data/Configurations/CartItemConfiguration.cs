@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.ShoppingCart;
 
 namespace Velora.Infrastructure.Data.Configurations;
@@ -12,21 +13,20 @@ public sealed class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
 
         builder.HasKey(ci => ci.Id);
 
-        builder.Property(ci => ci.Quantity)
-                    .IsRequired();
+        builder.Property(ci => ci.Quantity).IsRequired();
 
-        builder.Property(ci => ci.UnitPrice)
-                    .HasPrecision(18, 2)
-                    .IsRequired();
+        builder
+            .Property(ci => ci.UnitPrice)
+            .HasConversion(UnitPrice => UnitPrice.Amount, value => Money.Create(value))
+            .IsRequired();
 
-        builder.Property(ci => ci.Discount)
-                    .HasPrecision(18, 2)
-                    .IsRequired();
+        builder.Property(ci => ci.Discount).HasPrecision(18, 2).IsRequired();
 
-        builder.HasOne(ci => ci.Product)
-               .WithMany()
-               .HasForeignKey(ci => ci.ProductId)
-               .OnDelete(DeleteBehavior.NoAction);
+        builder
+            .HasOne(ci => ci.Product)
+            .WithMany()
+            .HasForeignKey(ci => ci.ProductId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Ignore(ci => ci.TotalPrice);
     }

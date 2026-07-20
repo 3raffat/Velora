@@ -5,7 +5,7 @@ namespace Velora.Infrastructure.Data.Configurations;
 
 public static class IdentityConfiguration
 {
-    public static void IdentityConfigurationTabels(this ModelBuilder builder)
+    public static void IdentityConfigurationTables(this ModelBuilder builder)
     {
         const string schema = "identity";
 
@@ -16,6 +16,5 @@ public static class IdentityConfiguration
         builder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins", schema);
         builder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims", schema);
         builder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens", schema);
-
     }
 }

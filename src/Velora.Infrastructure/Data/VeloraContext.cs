@@ -14,16 +14,15 @@ public sealed class VeloraContext
     : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>,
         IVeloraContext
 {
-
-    public VeloraContext(DbContextOptions<VeloraContext> options) : base(options) { }
+    public VeloraContext(DbContextOptions<VeloraContext> options)
+        : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(VeloraContext).Assembly);
-        builder.IdentityConfigurationTabels();
+        builder.IdentityConfigurationTables();
     }
-
 
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Customer> Customers => Set<Customer>();

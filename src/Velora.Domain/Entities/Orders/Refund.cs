@@ -5,7 +5,7 @@ using Velora.Domain.Entities.Orders.Enums;
 
 namespace Velora.Domain.Entities.Orders;
 
-public sealed class Refund : BaseEntity
+public sealed class Refund : AuditableEntity
 {
     public Money Amount { get; private set; } = null!;
     public RefundStatus Status { get; private set; }

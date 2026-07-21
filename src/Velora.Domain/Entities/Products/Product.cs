@@ -6,7 +6,7 @@ using Velora.Domain.Entities.Products.Exceptions;
 
 namespace Velora.Domain.Entities.Products;
 
-public class Product : BaseEntity
+public class Product : AuditableEntity, ISoftDelete
 {
     public Name Name { get; private set; } = null!;
     public string Description { get; private set; } = string.Empty;

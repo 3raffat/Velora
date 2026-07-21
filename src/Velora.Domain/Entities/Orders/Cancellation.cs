@@ -6,7 +6,7 @@ using Velora.Domain.Entities.Orders.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
 
-public class Cancellation : BaseEntity
+public class Cancellation : AuditableEntity
 {
     public string Reason { get; private set; } = string.Empty;
     public CancellationStatus Status { get; private set; }

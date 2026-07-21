@@ -11,7 +11,7 @@ public interface IVeloraContext
     public DbSet<Address> Addresses { get; }
     public DbSet<Customer> Customers { get; }
     public DbSet<Order> Orders { get; }
-    public DbSet<OrderItem> orderItems { get; }
+    public DbSet<OrderItem> OrderItems { get; }
     public DbSet<Cancellation> Cancellations { get; }
     public DbSet<Payment> Payments { get; }
     public DbSet<Refund> Refunds { get; }

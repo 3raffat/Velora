@@ -4,11 +4,10 @@ using Velora.Domain.Entities.Products.Exceptions;
 
 namespace Velora.Domain.Entities.Products;
 
-public sealed class Category : BaseEntity
+public sealed class Category : AuditableEntity, ISoftDelete
 {
     public Name Name { get; private set; } = null!;
     public string Description { get; private set; } = string.Empty;
-    public bool IsActive { get; private set; }
 
     private readonly List<Product> _products = new();
     public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
@@ -20,7 +19,6 @@ public sealed class Category : BaseEntity
     {
         Name = name;
         Description = description;
-        IsActive = true;
     }
 
     public static Category Create(Name name, string description)
@@ -55,8 +53,4 @@ public sealed class Category : BaseEntity
 
         Description = ValidateAndNormalize(description);
     }
-
-    public void Activate() => IsActive = true;
-
-    public void Deactivate() => IsActive = false;
 }

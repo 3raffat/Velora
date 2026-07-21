@@ -8,7 +8,7 @@ using Velora.Domain.Entities.Orders.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
 
-public sealed class Order : BaseEntity
+public sealed class Order : AuditableEntity
 {
     public string OrderNumber { get; private set; } = string.Empty;
     public DateTime OrderDate { get; private set; }

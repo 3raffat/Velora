@@ -9,7 +9,7 @@ using Velora.Domain.Entities.ShoppingCart;
 
 namespace Velora.Domain.Entities.Customers;
 
-public sealed class Customer : BaseEntity
+public sealed class Customer : AuditableEntity, ISoftDelete
 {
     public Guid IdentityUserId { get; private set; }
     public Name FirstName { get; private set; } = null!;

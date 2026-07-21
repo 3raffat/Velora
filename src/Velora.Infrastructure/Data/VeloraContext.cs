@@ -27,7 +27,7 @@ public sealed class VeloraContext
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Order> Orders => Set<Order>();
-    public DbSet<OrderItem> orderItems => Set<OrderItem>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Cancellation> Cancellations => Set<Cancellation>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Refund> Refunds => Set<Refund>();

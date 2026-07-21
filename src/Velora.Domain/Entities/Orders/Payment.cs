@@ -6,7 +6,7 @@ using Velora.Domain.Entities.Orders.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
 
-public sealed class Payment : BaseEntity
+public sealed class Payment : AuditableEntity
 {
     public PaymentMethod PaymentMethod { get; private set; }
     public string? TransactionId { get; private set; }

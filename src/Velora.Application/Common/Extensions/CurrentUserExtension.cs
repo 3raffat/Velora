@@ -1,7 +1,7 @@
 using Velora.Application.Common.Interfaces;
 using Velora.Application.Common.Models;
 
-namespace Velora.Api.Extensions;
+namespace Velora.Application.Common.Extensions;
 
 public static class CurrentUserExtension
 {

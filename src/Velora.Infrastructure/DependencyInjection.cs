@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Velora.Application.Common.Interfaces;
 using Velora.Infrastructure.Data;
+using Velora.Infrastructure.Data.Interceptors;
 
 namespace Velora.Infrastructure;
 
@@ -16,6 +17,7 @@ public static class DependencyInjection
     {
         services.AddDbConnection(cfg).AddIdentityConfiguration();
 
+        services.AddTransient<TimeProvider>();
         return services;
     }
 
@@ -27,6 +29,8 @@ public static class DependencyInjection
         services.AddDbContext<VeloraContext>(
             (sp, opt) =>
             {
+                sp.GetRequiredService<SoftDeleteInterceptor>();
+                sp.GetRequiredService<AuditableEntityInterceptor>();
                 opt.UseSqlServer(cfg.GetConnectionString("DefaultConnection"));
             }
         );

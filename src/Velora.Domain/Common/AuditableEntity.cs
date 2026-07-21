@@ -21,16 +21,16 @@ public abstract class AuditableEntity : BaseEntity
     protected AuditableEntity(Guid id)
         : base(id) { }
 
-    protected void MarkAsCreated(Guid? Id)
+    public void MarkAsCreated(Guid? Id)
     {
         var now = DateTime.UtcNow;
         CreatedBy = Id;
-
         CreatedAt = now;
         UpdatedAt = now;
+        UpdatedBy = Id;
     }
 
-    protected void MarkAsUpdated(Guid? Id)
+    public void MarkAsUpdated(Guid? Id)
     {
         UpdatedBy = Id;
         UpdatedAt = DateTime.UtcNow;

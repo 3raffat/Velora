@@ -1,6 +1,7 @@
 using Velora.Domain.Common;
 using Velora.Domain.Common.Exceptions;
 using Velora.Domain.Common.ValueObjects;
+using Velora.Domain.Entities.Customers.Events;
 using Velora.Domain.Entities.Customers.Exceptions;
 using Velora.Domain.Entities.Customers.ValueObjects;
 using Velora.Domain.Entities.Orders;
@@ -9,7 +10,7 @@ using Velora.Domain.Entities.ShoppingCart;
 
 namespace Velora.Domain.Entities.Customers;
 
-public sealed class Customer : AuditableEntity, ISoftDelete
+public sealed class Customer : SoftDeletableEntity
 {
     public Guid IdentityUserId { get; private set; }
     public Name FirstName { get; private set; } = null!;
@@ -69,5 +70,7 @@ public sealed class Customer : AuditableEntity, ISoftDelete
         PhoneNumber = phoneNumber;
         DateOfBirth = dateOfBirth;
         IsProfileCompleted = true;
+
+        AddDomainEvent(new CustomerProfileCompletedEvent(Id));
     }
 }

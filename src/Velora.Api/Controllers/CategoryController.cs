@@ -12,7 +12,7 @@ namespace Velora.Api.Controllers;
 [ApiController]
 [ApiVersion(1)]
 [Route("api/v{version:ApiVersion}/categories")]
-public class CategoryController(ISender _sender) : ControllerBase
+public sealed class CategoryController(ISender _sender) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreateCategoryRequest request, CancellationToken ct)

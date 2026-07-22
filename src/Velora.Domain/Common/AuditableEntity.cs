@@ -10,29 +10,23 @@ public abstract class AuditableEntity : BaseEntity
 
     public Guid? UpdatedBy { get; protected set; }
 
-    public bool IsDeleted { get; protected set; }
-
-    public DateTime? DeletedAt { get; protected set; }
-
-    public Guid? DeletedBy { get; protected set; }
-
     protected AuditableEntity() { }
 
     protected AuditableEntity(Guid id)
         : base(id) { }
 
-    public void MarkAsCreated(Guid? Id)
+    public void MarkAsCreated(Guid? id)
     {
         var now = DateTime.UtcNow;
-        CreatedBy = Id;
+        CreatedBy = id;
         CreatedAt = now;
         UpdatedAt = now;
-        UpdatedBy = Id;
+        UpdatedBy = id;
     }
 
-    public void MarkAsUpdated(Guid? Id)
+    public void MarkAsUpdated(Guid? id)
     {
-        UpdatedBy = Id;
+        UpdatedBy = id;
         UpdatedAt = DateTime.UtcNow;
     }
 }

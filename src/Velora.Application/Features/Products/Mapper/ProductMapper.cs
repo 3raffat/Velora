@@ -13,7 +13,7 @@ public static class ProductMapper
             product.Price.Amount,
             product.StockQuantity,
             product.ImageUrl,
-            product.Category.Name.Value
+            product.CategoryId
         );
     }
 

@@ -52,14 +52,12 @@ public sealed class SoftDeleteInterceptor(
         var user = _user.GetCurrentUserOrSystem();
         var time = _timeProvider.GetUtcNow().DateTime;
 
-        foreach (var entry in context.ChangeTracker.Entries<ISoftDelete>())
+        foreach (var entry in context.ChangeTracker.Entries<SoftDeletableEntity>())
         {
             if (EntityState.Deleted == entry.State)
             {
                 entry.State = EntityState.Modified;
-                entry.Entity.IsDeleted = true;
-                entry.Entity.DeletedAt = time;
-                entry.Entity.DeletedBy = user.Id;
+                entry.Entity.MarkAsDeleted(user.Id);
 
                 _logger.LogInformation(
                     "Soft deleted auditable entity {entity} with user id {userid} at {time}",

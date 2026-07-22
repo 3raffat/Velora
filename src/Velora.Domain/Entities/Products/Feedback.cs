@@ -7,7 +7,7 @@ using Velora.Domain.Entities.Products.ValueObjects;
 
 namespace Velora.Domain.Entities.Products;
 
-public sealed class Feedback : AuditableEntity, ISoftDelete
+public sealed class Feedback : SoftDeletableEntity
 {
     public Rating Rating { get; private set; } = null!;
     public string? Comment { get; private set; }

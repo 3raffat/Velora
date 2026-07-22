@@ -1,6 +1,6 @@
-namespace Velora.Application.Features.Products.Dtos;
+namespace Velora.Api.Contracts;
 
-public record ProductDto(
+public sealed record CreateProductRequest(
     string Name,
     string Description,
     decimal Price,

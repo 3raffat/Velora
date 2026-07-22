@@ -4,7 +4,7 @@ using Velora.Domain.Entities.Products.Exceptions;
 
 namespace Velora.Domain.Entities.Products;
 
-public sealed class Category : AuditableEntity, ISoftDelete
+public sealed class Category : SoftDeletableEntity
 {
     public Name Name { get; private set; } = null!;
     public string Description { get; private set; } = string.Empty;

@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Velora.Application.Common.Interfaces;
 using Velora.Application.Features.Categories.Exceptions;
+using Velora.Application.Features.Products.Dtos;
 using Velora.Application.Features.Products.Exceptions;
+using Velora.Application.Features.Products.Mapper;
 using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Products;
 
@@ -12,9 +14,9 @@ namespace Velora.Application.Features.Products.Commands.Create;
 public sealed class CreateProductCommandHandler(
     IVeloraContext _context,
     ILogger<CreateProductCommandHandler> _logger
-) : IRequestHandler<CreateProductCommand>
+) : IRequestHandler<CreateProductCommand, ProductDto>
 {
-    public async Task Handle(CreateProductCommand request, CancellationToken ct)
+    public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken ct)
     {
         var name = Name.Create(request.Name);
 
@@ -45,5 +47,7 @@ public sealed class CreateProductCommandHandler(
         await _context.SaveChangesAsync(ct);
 
         _logger.LogInformation("Product with ID {productId} created successfully.", product.Id);
+
+        return product.ToDto();
     }
 }

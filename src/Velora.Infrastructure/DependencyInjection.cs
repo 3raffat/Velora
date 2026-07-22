@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Velora.Application.Common.Interfaces;
@@ -17,7 +18,7 @@ public static class DependencyInjection
     {
         services.AddDbConnection(cfg).AddIdentityConfiguration();
 
-        services.AddTransient<TimeProvider>();
+        services.AddSingleton<TimeProvider>(TimeProvider.System);
         return services;
     }
 
@@ -26,12 +27,15 @@ public static class DependencyInjection
         IConfiguration cfg
     )
     {
+        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+        services.AddScoped<ISaveChangesInterceptor, SoftDeleteInterceptor>();
+        services.AddScoped<ISaveChangesInterceptor, PublishDomainEventsInterceptor>();
+
         services.AddDbContext<VeloraContext>(
             (sp, opt) =>
             {
-                sp.GetRequiredService<SoftDeleteInterceptor>();
-                sp.GetRequiredService<AuditableEntityInterceptor>();
                 opt.UseSqlServer(cfg.GetConnectionString("DefaultConnection"));
+                opt.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
             }
         );
 

@@ -2,11 +2,12 @@ using Velora.Domain.Common;
 using Velora.Domain.Common.Exceptions;
 using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Orders;
+using Velora.Domain.Entities.Products.Events;
 using Velora.Domain.Entities.Products.Exceptions;
 
 namespace Velora.Domain.Entities.Products;
 
-public class Product : AuditableEntity, ISoftDelete
+public class Product : SoftDeletableEntity
 {
     public Name Name { get; private set; } = null!;
     public string Description { get; private set; } = string.Empty;
@@ -107,8 +108,12 @@ public class Product : AuditableEntity, ISoftDelete
         if (quantity <= 0)
             throw new InvalidStockQuantityException(quantity);
 
+        var wasOutOfStock = StockQuantity == 0;
+
         StockQuantity += quantity;
-        IsAvailable = StockQuantity > 0;
+
+        if (wasOutOfStock)
+            AddDomainEvent(new ProductBackInStockEvent(Id));
     }
 
     public void DecreaseStock(int quantity)
@@ -120,7 +125,9 @@ public class Product : AuditableEntity, ISoftDelete
             throw new InsufficientStockException(StockQuantity, quantity);
 
         StockQuantity -= quantity;
-        IsAvailable = StockQuantity > 0;
+
+        if (StockQuantity == 0)
+            AddDomainEvent(new ProductOutOfStockEvent(Id));
     }
 
     public void UpdatePrice(Money price)

@@ -9,7 +9,6 @@ namespace Velora.Infrastructure.Data.Interceptors;
 
 public sealed class AuditableEntityInterceptor(
     ILogger<AuditableEntityInterceptor> _logger,
-    TimeProvider _timeProvider,
     ICurrentUser _user
 ) : SaveChangesInterceptor
 {
@@ -18,12 +17,6 @@ public sealed class AuditableEntityInterceptor(
         InterceptionResult<int> result
     )
     {
-        if (eventData.Context is null)
-        {
-            _logger.LogWarning("DbContext is null in SavingChanges");
-            return base.SavingChanges(eventData, result);
-        }
-
         UpdateEntities(eventData.Context);
 
         return base.SavingChanges(eventData, result);
@@ -35,12 +28,6 @@ public sealed class AuditableEntityInterceptor(
         CancellationToken cancellationToken = default
     )
     {
-        if (eventData.Context is null)
-        {
-            _logger.LogWarning("DbContext is null in SavingChanges");
-            return base.SavingChangesAsync(eventData, result);
-        }
-
         UpdateEntities(eventData.Context);
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
@@ -48,6 +35,11 @@ public sealed class AuditableEntityInterceptor(
 
     public void UpdateEntities(DbContext context)
     {
+        if (context == null)
+        {
+            return;
+        }
+
         var user = _user.GetCurrentUserOrSystem();
 
         foreach (var entry in context.ChangeTracker.Entries<AuditableEntity>())

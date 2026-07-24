@@ -13,6 +13,8 @@ public sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
 
         builder.HasKey(r => r.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder
             .Property(r => r.Amount)
             .HasConversion(refund => refund.Amount, value => Money.Create(value))

@@ -7,10 +7,7 @@ using Velora.Domain.Common;
 
 namespace Velora.Infrastructure.Data.Interceptors;
 
-public sealed class AuditableEntityInterceptor(
-    ILogger<AuditableEntityInterceptor> _logger,
-    ICurrentUser _user
-) : SaveChangesInterceptor
+public sealed class AuditableEntityInterceptor(ICurrentUser _user) : SaveChangesInterceptor
 {
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
@@ -33,7 +30,7 @@ public sealed class AuditableEntityInterceptor(
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    public void UpdateEntities(DbContext context)
+    public void UpdateEntities(DbContext? context)
     {
         if (context == null)
         {

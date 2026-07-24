@@ -12,24 +12,16 @@ public sealed class AddressConfiguration : IEntityTypeConfiguration<Address>
 
         builder.HasKey(a => a.Id);
 
-        builder.Property(a => a.AddressLine1)
-                     .HasMaxLength(200)
-                     .IsRequired();
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
 
-        builder.Property(a => a.AddressLine2)
-                      .HasMaxLength(200)
-                      .IsRequired();
+        builder.Property(a => a.AddressLine1).HasMaxLength(200).IsRequired();
 
-        builder.Property(a => a.City)
-                      .HasMaxLength(100)
-                      .IsRequired();
+        builder.Property(a => a.AddressLine2).HasMaxLength(200).IsRequired();
 
-        builder.Property(a => a.State)
-                      .HasMaxLength(100)
-                      .IsRequired();
+        builder.Property(a => a.City).HasMaxLength(100).IsRequired();
 
-        builder.Property(a => a.Country)
-                      .HasMaxLength(100)
-                      .IsRequired();
+        builder.Property(a => a.State).HasMaxLength(100).IsRequired();
+
+        builder.Property(a => a.Country).HasMaxLength(100).IsRequired();
     }
 }

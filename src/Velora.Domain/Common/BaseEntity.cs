@@ -4,7 +4,7 @@ namespace Velora.Domain.Common;
 
 public abstract class BaseEntity
 {
-    public Guid Id { get; }
+    public Guid Id { get; private set; }
 
     private readonly List<DomainEvent> _domainEvents = new();
 

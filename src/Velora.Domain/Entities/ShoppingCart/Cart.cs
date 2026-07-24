@@ -1,7 +1,9 @@
 using Velora.Domain.Common;
 using Velora.Domain.Common.Exceptions;
+using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Customers;
 using Velora.Domain.Entities.Customers.Exceptions;
+using Velora.Domain.Entities.ShoppingCart.Enums;
 using Velora.Domain.Entities.ShoppingCart.Exceptions;
 
 namespace Velora.Domain.Entities.ShoppingCart;
@@ -10,10 +12,9 @@ public sealed class Cart : AuditableEntity
 {
     public Guid CustomerId { get; private set; }
     public Customer Customer { get; private set; } = null!;
-    public bool IsCheckedOut { get; private set; }
-
+    public CartStatus Status { get; private set; }
     private readonly List<CartItem> _cartItems = new();
-    public IReadOnlyCollection<CartItem> CartItems => _cartItems.AsReadOnly();
+    public IEnumerable<CartItem> CartItems => _cartItems.AsReadOnly();
 
     private Cart() { }
 
@@ -21,7 +22,7 @@ public sealed class Cart : AuditableEntity
         : base(id)
     {
         CustomerId = customerId;
-        IsCheckedOut = false;
+        Status = CartStatus.Active;
     }
 
     public static Cart Create(Guid customerId)
@@ -32,37 +33,66 @@ public sealed class Cart : AuditableEntity
         return new Cart(Guid.NewGuid(), customerId);
     }
 
-    public void AddItem(CartItem item)
+    public void AddItem(Guid productId, int quantity, decimal unitPrice, decimal discount = 0)
     {
-        ArgumentNullException.ThrowIfNull(item);
-
-        if (IsCheckedOut)
+        if (Status is CartStatus.CheckedOut)
             throw new CartAlreadyCheckedOutException();
+
+        var existProduct = _cartItems.FirstOrDefault(p => p.ProductId == productId);
+
+        if (existProduct is not null)
+        {
+            existProduct.ChangeQuantity(quantity);
+            return;
+        }
+
+        var item = CartItem.Create(productId, Id, quantity, Money.Create(unitPrice), discount);
 
         _cartItems.Add(item);
     }
 
-    public void RemoveItem(Guid cartItemId)
+    public void RemoveItem(Guid productId)
     {
-        if (IsCheckedOut)
+        if (Status is CartStatus.CheckedOut)
             throw new CartAlreadyCheckedOutException();
 
-        var item = _cartItems.FirstOrDefault(x => x.Id == cartItemId);
+        var item = _cartItems.FirstOrDefault(x => x.ProductId == productId);
 
         if (item is null)
-            throw new CartItemNotFoundException(cartItemId);
+            throw new CartItemNotFoundException(productId);
 
         _cartItems.Remove(item);
+
+        if (!_cartItems.Any())
+            MarkAsAbandoned();
     }
 
     public void Checkout()
     {
-        if (IsCheckedOut)
+        if (Status is CartStatus.CheckedOut)
             throw new CartAlreadyCheckedOutException();
 
         if (_cartItems.Count == 0)
             throw new EmptyCartException();
 
-        IsCheckedOut = true;
+        Status = CartStatus.CheckedOut;
+    }
+
+    public void UpdateQuantity(Guid productId, int quantity)
+    {
+        var item = _cartItems.FirstOrDefault(i => i.ProductId == productId);
+
+        if (item is null)
+            throw new CartItemNotFoundException(productId);
+
+        item.ChangeQuantity(quantity);
+    }
+
+    private void MarkAsAbandoned()
+    {
+        if (Status == CartStatus.Active)
+        {
+            Status = CartStatus.Abandoned;
+        }
     }
 }

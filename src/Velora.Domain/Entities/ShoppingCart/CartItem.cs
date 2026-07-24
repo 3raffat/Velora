@@ -39,7 +39,7 @@ public sealed class CartItem : AuditableEntity
         Discount = discount;
     }
 
-    public static CartItem Create(
+    internal static CartItem Create(
         Guid productId,
         Guid cartId,
         int quantity,
@@ -67,22 +67,11 @@ public sealed class CartItem : AuditableEntity
         return new CartItem(Guid.NewGuid(), productId, cartId, quantity, unitPrice, discount);
     }
 
-    public void IncreaseQuantity(int amount)
+    public void ChangeQuantity(int quantity)
     {
-        if (amount < 1)
+        if (quantity <= 0)
             throw new InvalidQuantityException();
 
-        Quantity += amount;
-    }
-
-    public void DecreaseQuantity(int amount)
-    {
-        if (amount < 1)
-            throw new InvalidQuantityException();
-
-        if (Quantity - amount < 1)
-            throw new InvalidQuantityException(Quantity, amount);
-
-        Quantity -= amount;
+        Quantity = quantity;
     }
 }

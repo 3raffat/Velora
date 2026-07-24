@@ -222,7 +222,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Customers.Address", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AddressLine1")
@@ -263,7 +262,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Customers.Customer", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -325,7 +323,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Orders.Cancellation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("CancellationCharges")
@@ -384,7 +381,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Orders.Order", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BillingAddressId")
@@ -438,7 +434,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Orders.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Discount")
@@ -469,7 +464,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Orders.Payment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
@@ -518,7 +512,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Orders.Refund", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Amount")
@@ -577,7 +570,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Products.Category", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -620,7 +612,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Products.Feedback", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Comment")
@@ -670,7 +661,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CategoryId")
@@ -731,7 +721,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.ShoppingCart.Cart", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -743,8 +732,9 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsCheckedOut")
-                        .HasColumnType("bit");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -762,7 +752,6 @@ namespace Velora.Infrastructure.Data.Migrations
             modelBuilder.Entity("Velora.Domain.Entities.ShoppingCart.CartItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CartId")

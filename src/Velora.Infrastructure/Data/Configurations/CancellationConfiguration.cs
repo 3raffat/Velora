@@ -13,6 +13,8 @@ public sealed class CancellationConfiguration : IEntityTypeConfiguration<Cancell
 
         builder.HasKey(c => c.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder.Property(c => c.Reason).HasMaxLength(500).IsRequired();
 
         builder.Property(c => c.Status).HasConversion<string>().HasMaxLength(50).IsRequired();

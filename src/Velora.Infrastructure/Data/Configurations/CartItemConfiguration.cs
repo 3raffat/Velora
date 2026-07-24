@@ -13,6 +13,8 @@ public sealed class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
 
         builder.HasKey(ci => ci.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder.Property(ci => ci.Quantity).IsRequired();
 
         builder

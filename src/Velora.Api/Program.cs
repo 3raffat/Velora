@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-builder.Services.AddInfrastructure(builder.Configuration).AddApplication().AddPresentation();
+builder.Services.AddApplication().AddPresentation().AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

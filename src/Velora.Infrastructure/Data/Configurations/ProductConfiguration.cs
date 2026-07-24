@@ -13,6 +13,8 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasKey(p => p.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder
             .Property(p => p.Name)
             .HasConversion(name => name.Value, value => Name.Create(value))

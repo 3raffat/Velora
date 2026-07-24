@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Velora.Application.Common.Interfaces;
 using Velora.Domain.Entities.Customers;
 using Velora.Domain.Entities.Orders;
@@ -22,6 +23,11 @@ public sealed class VeloraContext
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(VeloraContext).Assembly);
         builder.IdentityConfigurationTables();
+    }
+
+    public IEnumerable<EntityEntry> GetTrackedEntries()
+    {
+        return ChangeTracker.Entries();
     }
 
     public DbSet<Address> Addresses => Set<Address>();

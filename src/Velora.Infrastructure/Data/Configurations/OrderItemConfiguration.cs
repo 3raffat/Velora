@@ -13,6 +13,8 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 
         builder.HasKey(oi => oi.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder.Property(oi => oi.Quantity).IsRequired();
 
         builder

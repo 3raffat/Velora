@@ -13,6 +13,8 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.HasKey(c => c.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder
             .Property(c => c.Name)
             .HasConversion(name => name.Value, value => Name.Create(value))

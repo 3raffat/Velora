@@ -13,6 +13,8 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.HasKey(p => p.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder
             .Property(p => p.PaymentMethod)
             .HasConversion<string>()

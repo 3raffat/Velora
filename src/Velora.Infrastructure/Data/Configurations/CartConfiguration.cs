@@ -12,16 +12,16 @@ public sealed class CartConfiguration : IEntityTypeConfiguration<Cart>
 
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.IsCheckedOut)
-               .IsRequired();
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
 
-        builder.HasMany(ci => ci.CartItems)
-               .WithOne(c => c.Cart)
-               .HasForeignKey(ci => ci.CartId)
-               .OnDelete(DeleteBehavior.Cascade);
+        builder.Property(c => c.Status).HasConversion<string>().IsRequired();
 
-        builder.Navigation(c => c.CartItems)
-               .UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder
+            .HasMany(ci => ci.CartItems)
+            .WithOne(c => c.Cart)
+            .HasForeignKey(ci => ci.CartId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(c => c.CartItems).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

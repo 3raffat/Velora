@@ -13,16 +13,14 @@ public sealed class FeedBackConfiguration : IEntityTypeConfiguration<Feedback>
 
         builder.HasKey(f => f.Id);
 
-        builder.Property(f => f.Rating)
-            .HasConversion(
-                rating => rating.Value,
-                value => Rating.Create(value))
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
+        builder
+            .Property(f => f.Rating)
+            .HasConversion(rating => rating.Value, value => Rating.Create(value))
             .HasColumnName("Rating")
             .IsRequired();
 
-        builder.Property(f => f.Comment)
-            .HasMaxLength(500);
-
-
+        builder.Property(f => f.Comment).HasMaxLength(500);
     }
 }

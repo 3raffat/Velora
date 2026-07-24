@@ -5,7 +5,7 @@
 namespace Velora.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class FixConfiguration : Migration
+    public partial class ConfigureKeysAsClientGenerated : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -13,6 +13,8 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasKey(o => o.Id);
 
+        builder.Property(ci => ci.Id).ValueGeneratedNever();
+
         builder.Property(o => o.OrderNumber).HasMaxLength(50).IsRequired();
 
         builder.Property(o => o.OrderDate).IsRequired();

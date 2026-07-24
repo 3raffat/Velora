@@ -22,3 +22,13 @@ appsettings.Local.json
 .vscode/
 tests/
 
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build folders
+bin/
+obj/

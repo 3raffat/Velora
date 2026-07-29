@@ -1,0 +1,52 @@
+using Asp.Versioning;
+using Velora.Api.Middleware;
+using Velora.Api.Services;
+using Velora.Application.Common.Interfaces;
+
+namespace Velora.Api;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    {
+        services.AddCustomApiVersioning().AddCurrentUser().AddExceptionHandling();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomApiVersioning(this IServiceCollection services)
+    {
+        services
+            .AddApiVersioning(opt =>
+            {
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.ReportApiVersions = true;
+                opt.ApiVersionReader = new UrlSegmentApiVersionReader();
+            })
+            .AddApiExplorer(opt =>
+            {
+                opt.GroupNameFormat = "'v'VVV";
+                opt.SubstituteApiVersionInUrl = true;
+            });
+        return services;
+    }
+
+    public static IServiceCollection AddCurrentUser(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+
+        services.AddScoped<ICurrentUser, CurrentUser>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddExceptionHandling(this IServiceCollection services)
+    {
+        services.AddProblemDetails();
+
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+
+        return services;
+    }
+}

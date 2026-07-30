@@ -8,7 +8,7 @@ namespace Velora.Domain.Entities.Customers;
 public sealed class Address : BaseEntity
 {
     public string AddressLine1 { get; private set; } = string.Empty;
-    public string? AddressLine2 { get; private set; }
+    public string AddressLine2 { get; private set; } = string.Empty;
     public string City { get; private set; } = string.Empty;
     public string State { get; private set; } = string.Empty;
     public string Country { get; private set; } = string.Empty;
@@ -21,7 +21,7 @@ public sealed class Address : BaseEntity
     private Address(
         Guid id,
         string addressLine1,
-        string? addressLine2,
+        string addressLine2,
         string city,
         string state,
         string country,
@@ -30,16 +30,16 @@ public sealed class Address : BaseEntity
         : base(id)
     {
         AddressLine1 = addressLine1.Trim();
-        AddressLine2 = addressLine2?.Trim();
+        AddressLine2 = addressLine2.Trim();
         City = city.Trim();
         State = state.Trim();
         Country = country.Trim();
         CustomerId = customerId;
     }
 
-    public static Address Create(
+    internal static Address Create(
         string addressLine1,
-        string? addressLine2,
+        string addressLine2,
         string city,
         string state,
         string country,
@@ -60,9 +60,9 @@ public sealed class Address : BaseEntity
         );
     }
 
-    public void Update(
+    internal void Update(
         string addressLine1,
-        string? addressLine2,
+        string addressLine2,
         string city,
         string state,
         string country
@@ -71,7 +71,7 @@ public sealed class Address : BaseEntity
         ValidateFields(addressLine1, addressLine2, city, state, country);
 
         AddressLine1 = addressLine1.Trim();
-        AddressLine2 = addressLine2?.Trim();
+        AddressLine2 = addressLine2.Trim();
         City = city.Trim();
         State = state.Trim();
         Country = country.Trim();

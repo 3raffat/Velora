@@ -33,6 +33,8 @@ public sealed class Customer : SoftDeletableEntity
 
     public IReadOnlyCollection<Feedback> Feedbacks => _feedbacks.AsReadOnly();
 
+    private const int MaxAddresses = 5;
+
     private Customer(Guid identityUserId, Guid id)
         : base(id)
     {
@@ -72,5 +74,38 @@ public sealed class Customer : SoftDeletableEntity
         IsProfileCompleted = true;
 
         AddDomainEvent(new CustomerProfileCompletedEvent(Id));
+    }
+
+    public void AddAddress(
+        string addressLine1,
+        string addressLine2,
+        string city,
+        string state,
+        string country
+    )
+    {
+        if (_addresses.Count >= MaxAddresses)
+            throw new MaxAddressesReachedException(MaxAddresses);
+
+        var address = Address.Create(addressLine1, addressLine2, city, state, country, Id);
+
+        _addresses.Add(address);
+    }
+
+    public void UpdateAddress(
+        Guid addressId,
+        string addressLine1,
+        string addressLine2,
+        string city,
+        string state,
+        string country
+    )
+    {
+        var address = _addresses.FirstOrDefault(a => a.Id == addressId);
+
+        if (address is null)
+            throw new AddressNotFoundException(addressId);
+
+        address.Update(addressLine1, addressLine2, city, state, country);
     }
 }

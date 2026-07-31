@@ -12,7 +12,7 @@ public sealed record PhoneNumber
         Value = value;
     }
 
-    public static PhoneNumber Create(string rawNumber, string? region = null)
+    public static PhoneNumber Create(string rawNumber, string region = "JO")
     {
         if (string.IsNullOrWhiteSpace(rawNumber))
             throw new InvalidPhoneNumberException(rawNumber);

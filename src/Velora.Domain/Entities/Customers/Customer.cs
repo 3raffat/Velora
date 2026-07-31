@@ -108,4 +108,14 @@ public sealed class Customer : SoftDeletableEntity
 
         address.Update(addressLine1, addressLine2, city, state, country);
     }
+
+    public void RemoveAddress(Guid addressId)
+    {
+        var address = _addresses.FirstOrDefault(a => a.Id == addressId);
+
+        if (address is null)
+            throw new AddressNotFoundException(addressId);
+
+        _addresses.Remove(address);
+    }
 }

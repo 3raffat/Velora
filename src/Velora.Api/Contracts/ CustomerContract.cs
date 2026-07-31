@@ -17,3 +17,14 @@ public sealed record UpdateAddressRequest(
     string Country,
     Guid CustomerId
 );
+
+public sealed record DeleteAddressRequest(Guid CustomerId);
+
+public sealed record CompleteCustomerProfileRequest(
+    Guid IdentityId,
+    string FirstName,
+    string LastName,
+    string Email,
+    string PhoneNumber,
+    DateOnly DateOfBirth
+);

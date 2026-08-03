@@ -1,4 +1,5 @@
 using MediatR;
+using Velora.Domain.Entities.Orders.Enums;
 
 namespace Velora.Application.Features.ShoppingCarts.Commands.Checkout;
 
@@ -7,5 +8,6 @@ public sealed record CheckoutCartCommand(
     Guid CartId,
     Guid ShippingAddressId,
     Guid BillingAddressId,
-    decimal ShippingCost
-) : IRequest;
+    PaymentMethod PaymentMethod,
+    decimal ShippingCost = 0
+) : IRequest<Guid>;

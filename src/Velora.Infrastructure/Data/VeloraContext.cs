@@ -8,12 +8,11 @@ using Velora.Domain.Entities.Orders;
 using Velora.Domain.Entities.Products;
 using Velora.Domain.Entities.ShoppingCart;
 using Velora.Infrastructure.Data.Configurations;
+using Velora.Infrastructure.Services.Models;
 
 namespace Velora.Infrastructure.Data;
 
-public sealed class VeloraContext
-    : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>,
-        IVeloraContext
+public sealed class VeloraContext : IdentityDbContext<AppUser, AppRole, Guid>, IVeloraContext
 {
     public VeloraContext(DbContextOptions<VeloraContext> options)
         : base(options) { }

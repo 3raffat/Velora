@@ -15,9 +15,9 @@ namespace Velora.Application.Features.ShoppingCarts.Commands.Checkout;
 public sealed class CheckoutCartCommandHandler(
     IVeloraContext _context,
     ILogger<CheckoutCartCommandHandler> _logger
-) : IRequestHandler<CheckoutCartCommand>
+) : IRequestHandler<CheckoutCartCommand, Guid>
 {
-    public async Task Handle(CheckoutCartCommand request, CancellationToken ct)
+    public async Task<Guid> Handle(CheckoutCartCommand request, CancellationToken ct)
     {
         var cart = await _context
             .Carts.Include(c => c.CartItems)
@@ -83,17 +83,29 @@ public sealed class CheckoutCartCommandHandler(
             product.DecreaseStock(item.Quantity);
         }
 
+        // Create a pending payment for the order
+        var payment = Payment.Create(
+            request.PaymentMethod,
+            Money.Create(order.TotalAmount),
+            order.Id
+        );
+
         cart.Checkout();
 
-        _context.Orders.Add(order);
+        await _context.Orders.AddAsync(order);
+        await _context.Payments.AddAsync(payment);
 
         await _context.SaveChangesAsync(ct);
 
         _logger.LogInformation(
-            "Order {OrderId} created for customer {CustomerId} from cart {CartId}",
+            "Order {OrderId} ({OrderNumber}) created with payment {PaymentId} for customer {CustomerId} from cart {CartId}",
             order.Id,
+            order.OrderNumber,
+            payment.Id,
             request.CustomerId,
             request.CartId
         );
+
+        return order.Id;
     }
 }

@@ -81,6 +81,19 @@ public sealed class Order : AuditableEntity
         _orderItems.Add(orderItem);
     }
 
+    public void Confirm()
+    {
+        if (OrderStatus != OrderStatus.Pending)
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(Confirm),
+                OrderStatus,
+                OrderStatus.Pending
+            );
+
+        OrderStatus = OrderStatus.Processing;
+    }
+
     public void Ship()
     {
         if (OrderStatus != OrderStatus.Processing)

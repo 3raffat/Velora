@@ -9,7 +9,7 @@ using Velora.Application.Common.Response;
 using Velora.Application.Features.ShoppingCarts.Commands.AddCartItem;
 using Velora.Application.Features.ShoppingCarts.Commands.ClearCart;
 using Velora.Application.Features.ShoppingCarts.Commands.RemoveCartItem;
-using Velora.Domain.Entities.ShoppingCart;
+using Velora.Application.Features.ShoppingCarts.Queries.GetActiveCart;
 
 namespace Velora.Api.Controllers;
 
@@ -19,6 +19,22 @@ namespace Velora.Api.Controllers;
 [Route("api/v{version:apiVersion}/carts")]
 public class CartController(ISender _sender, ICurrentUser _currentUser) : ControllerBase
 {
+    [HttpGet("my-cart")]
+    public async Task<IActionResult> GetMyCart(CancellationToken ct)
+    {
+        var user = _currentUser.GetCurrentUserOrSystem();
+
+        var cart = await _sender.Send(new GetActiveCartQuery(user.Id), ct);
+
+        return Ok(
+            new StandardSuccessResponse<object?>(
+                cart,
+                StatusCodes.Status200OK,
+                "Active Cart Retrieved Successfully"
+            )
+        );
+    }
+
     [HttpPost("{cartId:guid}/items")]
     public async Task<IActionResult> AddCartItem(
         Guid cartId,

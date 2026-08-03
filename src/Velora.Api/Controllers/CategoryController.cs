@@ -6,6 +6,8 @@ using Velora.Api.Contracts;
 using Velora.Application.Common.Response;
 using Velora.Application.Features.Categories.Commands.Create;
 using Velora.Application.Features.Categories.Commands.Update;
+using Velora.Application.Features.Categories.Queries.GetAllCategories;
+using Velora.Application.Features.Categories.Queries.GetCategoryById;
 
 namespace Velora.Api.Controllers;
 
@@ -14,6 +16,34 @@ namespace Velora.Api.Controllers;
 [Route("api/v{version:ApiVersion}/categories")]
 public sealed class CategoryController(ISender _sender) : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var result = await _sender.Send(new GetAllCategoriesQuery(), ct);
+
+        return Ok(
+            new StandardSuccessResponse<object>(
+                result,
+                StatusCodes.Status200OK,
+                "Categories Retrieved Successfully"
+            )
+        );
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
+    {
+        var result = await _sender.Send(new GetCategoryByIdQuery(id), ct);
+
+        return Ok(
+            new StandardSuccessResponse<object>(
+                result,
+                StatusCodes.Status200OK,
+                "Category Retrieved Successfully"
+            )
+        );
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateCategoryRequest request, CancellationToken ct)
     {
@@ -22,10 +52,12 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
             ct
         );
 
-        return Ok(
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = result },
             new StandardSuccessResponse<object>(
                 result,
-                StatusCodes.Status200OK,
+                StatusCodes.Status201Created,
                 "Category Created Successfully"
             )
         );

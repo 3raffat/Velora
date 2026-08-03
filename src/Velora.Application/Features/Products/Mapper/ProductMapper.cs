@@ -8,11 +8,13 @@ public static class ProductMapper
     public static ProductDto ToDto(this Product product)
     {
         return new ProductDto(
+            product.Id,
             product.Name.Value,
             product.Description,
             product.Price.Amount,
             product.StockQuantity,
             product.ImageUrl,
+            product.IsAvailable,
             product.CategoryId
         );
     }

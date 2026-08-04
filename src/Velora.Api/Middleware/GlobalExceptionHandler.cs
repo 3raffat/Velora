@@ -7,7 +7,8 @@ namespace Velora.Api.Middleware;
 
 public sealed class GlobalExceptionHandler(
     IProblemDetailsService _service,
-    ILogger<GlobalExceptionHandler> _logger
+    ILogger<GlobalExceptionHandler> _logger,
+    IHostEnvironment _env
 ) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
@@ -16,9 +17,35 @@ public sealed class GlobalExceptionHandler(
         CancellationToken ct
     )
     {
-        _logger.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
+        _logger.LogError(
+            exception,
+            "Unhandled exception occurred: {Message} traceId: {TraceId}",
+            exception.Message,
+            httpContext.TraceIdentifier
+        );
 
-        var (statusCode, title) = exception switch
+        var (statusCode, title) = MapException(exception);
+
+        var problem = new ProblemDetailsContext()
+        {
+            HttpContext = httpContext,
+            Exception = exception,
+            ProblemDetails = new ProblemDetails()
+            {
+                Type = $"https://httpstatuses.com/{statusCode}",
+                Title = title,
+                Status = statusCode,
+                Detail = GetSafeErrorMessage(exception, statusCode),
+            },
+        };
+
+        httpContext.Response.StatusCode = statusCode;
+
+        return await _service.TryWriteAsync(problem);
+    }
+
+    private static (int statusCode, string title) MapException(Exception exception) =>
+        exception switch
         {
             DomainException => (StatusCodes.Status400BadRequest, "Business Rule Violation"),
 
@@ -35,21 +62,11 @@ public sealed class GlobalExceptionHandler(
             _ => (StatusCodes.Status500InternalServerError, "An Unexpected Error Occurred"),
         };
 
-        var problem = new ProblemDetailsContext()
-        {
-            HttpContext = httpContext,
-            Exception = exception,
-            ProblemDetails = new ProblemDetails()
-            {
-                Title = title,
-                Status = statusCode,
-                Detail = exception.Message,
-            },
-        };
+    private string? GetSafeErrorMessage(Exception exception, int statusCode)
+    {
+        if (_env.IsDevelopment())
+            return exception.Message;
 
-        httpContext.Response.StatusCode = statusCode;
-
-        await _service.TryWriteAsync(problem);
-        return true;
+        return statusCode >= StatusCodes.Status500InternalServerError ? null : exception.Message;
     }
 }

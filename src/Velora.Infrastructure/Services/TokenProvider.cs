@@ -28,13 +28,11 @@ public sealed class TokenProvider(IConfiguration _configuration, IVeloraContext 
     )
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
-        var Aduience = jwtSettings["Audience"];
+        var Audience = jwtSettings["Audience"];
         var Issuer = jwtSettings["Issuer"];
-        var Secret = jwtSettings["Secret"];
-        var Expire = DateTime.UtcNow.AddMinutes(
-            int.Parse(jwtSettings["TokenExpirationInMinutes"]!)
-        );
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!));
+        var Key = jwtSettings["Key"];
+        var Expire = DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["ExpiresInMinutes"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
 
         var claims = new List<Claim>
         {
@@ -50,7 +48,7 @@ public sealed class TokenProvider(IConfiguration _configuration, IVeloraContext 
         var descriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Audience = Aduience,
+            Audience = Audience,
             Issuer = Issuer,
             Expires = Expire,
             SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256),
@@ -95,7 +93,7 @@ public sealed class TokenProvider(IConfiguration _configuration, IVeloraContext 
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]!)
+                Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!)
             ),
             ValidateIssuer = true,
             ValidIssuer = _configuration["JwtSettings:Issuer"],

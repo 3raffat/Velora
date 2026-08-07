@@ -9,6 +9,7 @@ public sealed class AppUser : IdentityUser<Guid>
 
     private AppUser(string username, string email)
     {
+        this.Id = Guid.NewGuid();
         this.UserName = username;
         this.Email = email;
     }

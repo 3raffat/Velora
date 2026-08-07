@@ -60,8 +60,6 @@ public static class DependencyInjection
                 opt.Password.RequireNonAlphanumeric = true;
                 opt.Password.RequiredLength = 8;
                 opt.Password.RequiredUniqueChars = 1;
-
-                opt.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
             })
             .AddRoles<AppRole>()
             .AddEntityFrameworkStores<VeloraContext>()

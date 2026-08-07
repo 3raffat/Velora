@@ -58,7 +58,7 @@ public sealed class UserService(
         return new LoginUserDto(email, tokenResult);
     }
 
-    public async Task RegisterAsync(
+    public async Task<RegisterUserDto> RegisterAsync(
         string username,
         string email,
         string password,
@@ -73,30 +73,25 @@ public sealed class UserService(
         var existingEmail = await _manager.FindByEmailAsync(email);
 
         if (existingEmail is not null)
-        {
-            _logger.LogWarning(
-                "Registration attempt failed: Email {Email} is already registered.",
-                email
-            );
             throw new EmailAlreadyExistsException(email);
-        }
 
         var newUser = AppUser.Create(username, email);
 
         var createResult = await _manager.CreateAsync(newUser, password);
 
         if (!createResult.Succeeded)
-            throw new InvalidOperationException(
-                "User creation failed. Please check the provided details and try again."
-            );
-
-        var addToRoleResult = await _manager.AddToRoleAsync(newUser, "User");
-
-        if (!addToRoleResult.Succeeded)
         {
-            await _manager.DeleteAsync(newUser);
-            throw new InvalidOperationException("Failed to assign role to user. Please try again.");
+            var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+
+            throw new InvalidOperationException(errors);
         }
+        // var addToRoleResult = await _manager.AddToRoleAsync(newUser, "User");
+
+        // if (!addToRoleResult.Succeeded)
+        // {
+        //     await _manager.DeleteAsync(newUser);
+        //     throw new InvalidOperationException("Failed to assign role to user. Please try again.");
+        // }
 
         _logger.LogInformation("User with email {Email} successfully registered.", email);
 
@@ -105,9 +100,11 @@ public sealed class UserService(
         var encodedToken = EncodedToken(token);
 
         var confirmationLink =
-            $"https://localhost:5000/auth/v1/confirm-email?userId={newUser.Id}&token={encodedToken}";
+            $"http://localhost:5000/api/v1/auth/confirm-email/{newUser.Id}?token={encodedToken}";
 
-        // await _emailService.SendConfirmationEmailAsync(email, username, confirmationLink, ct);
+        await _emailService.SendConfirmationEmailAsync(email, username, confirmationLink, ct);
+
+        return new RegisterUserDto(newUser.Id);
     }
 
     private async Task<AppUserDto> GetUserInfoAsync(AppUser user)

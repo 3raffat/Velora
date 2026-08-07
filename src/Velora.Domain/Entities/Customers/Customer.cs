@@ -13,11 +13,11 @@ namespace Velora.Domain.Entities.Customers;
 public sealed class Customer : SoftDeletableEntity
 {
     public Guid IdentityUserId { get; private set; }
-    public Name FirstName { get; private set; } = null!;
-    public Name LastName { get; private set; } = null!;
-    public Email Email { get; private set; } = null!;
-    public PhoneNumber PhoneNumber { get; private set; } = null!;
-    public DateOnly DateOfBirth { get; private set; }
+    public Name? FirstName { get; private set; }
+    public Name? LastName { get; private set; }
+    public Email? Email { get; private set; }
+    public PhoneNumber? PhoneNumber { get; private set; }
+    public DateOnly DateOfBirth { get; private set; } = default;
     public bool IsProfileCompleted { get; private set; }
 
     private readonly List<Order> _orders = new();

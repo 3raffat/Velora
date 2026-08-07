@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Velora.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigraion : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,10 +45,10 @@ namespace Velora.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdentityUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(225)", maxLength: 225, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(225)", maxLength: 225, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     IsProfileCompleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -181,6 +181,39 @@ namespace Velora.Infrastructure.Data.Migrations
                     table.PrimaryKey("PK_Carts", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Carts_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalSchema: "velora",
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                schema: "velora",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OrderStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AddressLine1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    AddressLine2 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    State = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalSchema: "velora",
                         principalTable: "Customers",
@@ -338,48 +371,6 @@ namespace Velora.Infrastructure.Data.Migrations
                         column: x => x.ProductId,
                         principalSchema: "velora",
                         principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                schema: "velora",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OrderNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    OrderStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BillingAddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ShippingAddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Orders_Addresses_BillingAddressId",
-                        column: x => x.BillingAddressId,
-                        principalSchema: "velora",
-                        principalTable: "Addresses",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Orders_Addresses_ShippingAddressId",
-                        column: x => x.ShippingAddressId,
-                        principalSchema: "velora",
-                        principalTable: "Addresses",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Orders_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalSchema: "velora",
-                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -600,22 +591,10 @@ namespace Velora.Infrastructure.Data.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_BillingAddressId",
-                schema: "velora",
-                table: "Orders",
-                column: "BillingAddressId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Orders_CustomerId",
                 schema: "velora",
                 table: "Orders",
                 column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_ShippingAddressId",
-                schema: "velora",
-                table: "Orders",
-                column: "ShippingAddressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_OrderId",
@@ -695,6 +674,10 @@ namespace Velora.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Addresses",
+                schema: "velora");
+
+            migrationBuilder.DropTable(
                 name: "CartItems",
                 schema: "velora");
 
@@ -760,10 +743,6 @@ namespace Velora.Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Orders",
-                schema: "velora");
-
-            migrationBuilder.DropTable(
-                name: "Addresses",
                 schema: "velora");
 
             migrationBuilder.DropTable(

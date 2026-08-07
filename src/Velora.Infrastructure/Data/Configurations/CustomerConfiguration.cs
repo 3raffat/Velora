@@ -18,30 +18,36 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder
             .Property(c => c.FirstName)
-            .HasConversion(firstName => firstName.Value, value => Name.Create(value))
-            .HasMaxLength(100)
-            .IsRequired();
+            .HasConversion(
+                firstName => firstName == null ? null : firstName.Value,
+                value => value == null ? null : Name.Create(value)
+            )
+            .HasMaxLength(100);
 
         builder
             .Property(c => c.LastName)
-            .HasConversion(lastName => lastName.Value, value => Name.Create(value))
-            .HasMaxLength(100)
-            .IsRequired();
+            .HasConversion(
+                lastName => lastName == null ? null : lastName.Value,
+                value => value == null ? null : Name.Create(value)
+            )
+            .HasMaxLength(100);
 
         builder
             .Property(c => c.PhoneNumber)
-            .HasConversion(phoneNumber => phoneNumber.Value, value => PhoneNumber.Create(value))
-            .HasMaxLength(100)
-            .IsRequired();
+            .HasConversion(
+                phoneNumber => phoneNumber == null ? null : phoneNumber.Value,
+                value => value == null ? null : PhoneNumber.Create(value)
+            )
+            .HasMaxLength(100);
 
         builder
             .Property(c => c.Email)
-            .HasConversion(email => email.Value, value => Email.Create(value))
+            .HasConversion(
+                email => email == null ? null : email.Value,
+                value => value == null ? null : Email.Create(value)
+            )
             .HasColumnName("Email")
-            .HasMaxLength(225)
-            .IsRequired();
-
-        builder.Property(c => c.PhoneNumber).IsRequired().HasMaxLength(30);
+            .HasMaxLength(225);
 
         builder.Property(c => c.DateOfBirth).IsRequired();
 

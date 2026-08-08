@@ -19,4 +19,14 @@ public interface IEmailService
         CouponType couponType,
         CancellationToken cancellationToken = default
     );
+
+    Task SendBirthdayCouponEmailAsync(
+        string email,
+        string customerName,
+        string couponCode,
+        decimal discount,
+        DateTime expiresAt,
+        CouponType couponType,
+        CancellationToken cancellationToken = default
+    );
 }

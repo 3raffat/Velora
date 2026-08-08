@@ -18,5 +18,11 @@ public static class HangfireExtensions
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Hourly
         );
+
+        RecurringJob.AddOrUpdate<BirthdayOfferJob>(
+            "birthday-offers",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Daily(9)
+        );
     }
 }

@@ -47,6 +47,26 @@ public sealed class EmailService(IConfiguration _cfg, ILogger<EmailService> _log
         );
     }
 
+    public async Task SendBirthdayCouponEmailAsync(
+        string email,
+        string customerName,
+        string couponCode,
+        decimal discount,
+        DateTime expiresAt,
+        CouponType couponType,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await SendAsync(
+            new EmailMessage(
+                email,
+                "Happy Birthday! Here's a special gift for you",
+                EmailTemplates.BirthdayCouponBody(customerName, couponCode, discount, expiresAt)
+            ),
+            cancellationToken
+        );
+    }
+
     public async Task SendAsync(EmailMessage message, CancellationToken ct = default)
     {
         var emailSettings = _cfg.GetSection("EmailSettings");

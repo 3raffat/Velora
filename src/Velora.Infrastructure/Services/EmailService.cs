@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MimeKit;
 using Velora.Application.Common.Interfaces;
 using Velora.Application.Common.Models;
+using Velora.Domain.Entities.Coupons.Enums;
 using Velora.Infrastructure.Common;
 
 namespace Velora.Infrastructure.Services;
@@ -21,6 +22,26 @@ public sealed class EmailService(IConfiguration _cfg, ILogger<EmailService> _log
                 to,
                 "Confirm your email",
                 EmailTemplates.ConfirmationEmailBody(userName, confirmationLink)
+            ),
+            ct
+        );
+    }
+
+    public async Task SendCouponEmailAsync(
+        string email,
+        string customerName,
+        string couponCode,
+        decimal discount,
+        DateTime? expiresAt,
+        CouponType couponType,
+        CancellationToken ct = default
+    )
+    {
+        await SendAsync(
+            new EmailMessage(
+                email,
+                "Your Coupon Code",
+                EmailTemplates.CouponBody(customerName, couponCode, discount, expiresAt)
             ),
             ct
         );

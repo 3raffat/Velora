@@ -12,5 +12,11 @@ public static class HangfireExtensions
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Daily
         );
+
+        RecurringJob.AddOrUpdate<CleanupExpiredUnusedCouponsJob>(
+            "cleanup-expired-unused-coupons",
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Hourly
+        );
     }
 }

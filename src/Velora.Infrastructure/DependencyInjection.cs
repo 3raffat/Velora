@@ -91,6 +91,7 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ICouponCodeGenerator, CouponCodeGenerator>();
 
         return services;
     }

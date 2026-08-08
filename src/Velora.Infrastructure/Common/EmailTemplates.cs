@@ -177,4 +177,21 @@ public static class EmailTemplates
             </html>
             """;
     }
+
+    public static string CouponBody(
+        string customerName,
+        string couponCode,
+        decimal discount,
+        DateTime? expiryDate = null,
+        string storeName = "Velora",
+        string shopUrl = "https://velora.com",
+        string title = "A Special Offer For You 🎉",
+        string description = "Enjoy this special discount on your next order."
+    )
+    {
+        var expiryText = expiryDate.HasValue
+            ? $"Valid until <strong>{expiryDate:yyyy-MM-dd}</strong>"
+            : "No expiry date";
+        return $""" <!DOCTYPE html> <html> <body style=" margin:0; padding:0; background-color:#f5f5f5; font-family:Arial, Helvetica, sans-serif; "> <table width="100%" cellpadding="0" cellspacing="0" border="0"> <tr> <td align="center" style="padding:40px 20px;"> <table width="600" cellpadding="0" cellspacing="0" border="0" style=" background-color:#ffffff; border-radius:12px; padding:35px; text-align:center; "> <tr> <td> <h1 style=" margin:0 0 20px; color:#111827; font-size:28px; "> {title} </h1> <p style=" margin:0 0 15px; color:#4b5563; font-size:16px; "> Hi {customerName}, </p> <p style=" margin:0; color:#4b5563; font-size:16px; line-height:1.6; "> {description} </p> <div style=" margin:30px 0; padding:25px; background-color:#f3f4f6; border-radius:10px; "> <p style=" margin:0 0 10px; color:#6b7280; font-size:14px; "> Your Coupon Code </p> <h2 style=" margin:0 0 15px; color:#111827; font-size:28px; letter-spacing:4px; "> {couponCode} </h2> <p style=" margin:0; color:#16a34a; font-size:20px; font-weight:bold; "> {discount}% OFF </p> </div> <p style=" margin:0; color:#6b7280; font-size:14px; "> {expiryText} </p> <a href="{shopUrl}" style=" display:inline-block; margin-top:25px; padding:14px 35px; background-color:#111827; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:bold; "> Shop Now </a> <p style=" margin:30px 0 0; color:#9ca3af; font-size:13px; "> Thank you for choosing {storeName} ❤️ </p> </td> </tr> </table> </td> </tr> </table> </body> </html> """;
+    }
 }

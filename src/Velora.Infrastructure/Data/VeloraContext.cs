@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Velora.Application.Common.Interfaces;
+using Velora.Domain.Entities.Coupons;
 using Velora.Domain.Entities.Customers;
 using Velora.Domain.Entities.Orders;
 using Velora.Domain.Entities.Products;
@@ -41,4 +42,6 @@ public sealed class VeloraContext : IdentityDbContext<AppUser, AppRole, Guid>, I
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
+
+    public DbSet<Coupon> Coupons => Set<Coupon>();
 }

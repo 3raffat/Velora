@@ -2,6 +2,7 @@ namespace Velora.Application.Common.Interfaces;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Velora.Domain.Entities.Coupons;
 using Velora.Domain.Entities.Customers;
 using Velora.Domain.Entities.Orders;
 using Velora.Domain.Entities.Products;
@@ -21,6 +22,7 @@ public interface IVeloraContext
     public DbSet<Product> Products { get; }
     public DbSet<Cart> Carts { get; }
     public DbSet<CartItem> CartItems { get; }
+    public DbSet<Coupon> Coupons { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
     IEnumerable<EntityEntry> GetTrackedEntries();

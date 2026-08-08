@@ -31,14 +31,14 @@ public sealed class PublishDomainEventsInterceptor(IMediator _mediator) : SaveCh
 
         var domainEvents = domainEntities.SelectMany(e => e.DomainEvents).ToList();
 
-        foreach (var domainEvent in domainEvents)
-        {
-            await _mediator.Publish(domainEvent, ct);
-        }
-
         foreach (var entity in domainEntities)
         {
             entity.ClearDomainEvents();
+        }
+
+        foreach (var domainEvent in domainEvents)
+        {
+            await _mediator.Publish(domainEvent, ct);
         }
     }
 }

@@ -24,7 +24,7 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        var cart = await _sender.Send(new GetActiveCartQuery(user.Id), ct);
+        var cart = await _sender.Send(new GetActiveCartQuery(user.IdentityUserId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(
@@ -45,7 +45,12 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
         var user = _currentUser.GetCurrentUserOrSystem();
 
         await _sender.Send(
-            new AddCartItemCommand(user.Id, cartId, request.ProductId, request.Quantity),
+            new AddCartItemCommand(
+                user.IdentityUserId,
+                cartId,
+                request.ProductId,
+                request.Quantity
+            ),
             ct
         );
 
@@ -67,7 +72,10 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new RemoveCartItemCommand(user.Id, cartId, request.ProductId), ct);
+        await _sender.Send(
+            new RemoveCartItemCommand(user.IdentityUserId, cartId, request.ProductId),
+            ct
+        );
 
         return Ok(
             new StandardSuccessResponse<object?>(
@@ -83,7 +91,7 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new ClearCartCommand(user.Id, cartId), ct);
+        await _sender.Send(new ClearCartCommand(user.IdentityUserId, cartId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(

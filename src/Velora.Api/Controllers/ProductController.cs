@@ -59,7 +59,7 @@ public sealed class ProductController(ISender _sender) : ControllerBase
 
         return CreatedAtAction(
             nameof(GetById),
-            new { id = result },
+            new { id = result.Id },
             new StandardSuccessResponse<object>(
                 result,
                 StatusCodes.Status201Created,

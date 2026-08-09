@@ -1,10 +1,12 @@
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Velora.Application.Common.Interfaces;
 using Velora.Application.Features.Auth.Dtos;
 using Velora.Application.Features.Auth.Exceptions;
+using Velora.Application.Features.Customers.Exceptions;
 using Velora.Infrastructure.Services.Models;
 
 namespace Velora.Infrastructure.Services;
@@ -13,7 +15,8 @@ public sealed class UserService(
     ILogger<UserService> _logger,
     UserManager<AppUser> _manager,
     ITokenProvider _token,
-    IEmailService _emailService
+    IEmailService _emailService,
+    IVeloraContext _context
 ) : IUserService
 {
     public async Task ConfirmEmailAsync(string userId, string token, CancellationToken ct)
@@ -53,7 +56,15 @@ public sealed class UserService(
 
         var userInfo = await GetUserInfoAsync(user);
 
-        var tokenResult = await _token.GenerateJwtTokenAsync(userInfo, ct);
+        var customer = await _context
+            .Customers.Where(c => c.IdentityUserId == userInfo.UserId)
+            .Select(c => new { CustomerId = c.Id })
+            .FirstOrDefaultAsync(ct);
+
+        if (customer is null)
+            throw new CustomerNotFoundException(userInfo.UserId);
+
+        var tokenResult = await _token.GenerateJwtTokenAsync(customer.CustomerId, userInfo, ct);
 
         return new LoginUserDto(email, tokenResult);
     }
@@ -113,7 +124,7 @@ public sealed class UserService(
 
         var claims = await _manager.GetClaimsAsync(user);
 
-        return new AppUserDto(user.GetIdString(), user.Email!, roles, claims);
+        return new AppUserDto(user.Id, user.Email!, roles, claims);
     }
 
     public async Task<AppUserDto?> GetUserByIdAsync(string userId)
@@ -126,7 +137,7 @@ public sealed class UserService(
 
         var claims = await _manager.GetClaimsAsync(user);
 
-        return new AppUserDto(user.Id.ToString(), user.Email!, roles, claims);
+        return new AppUserDto(user.Id, user.Email!, roles, claims);
     }
 
     private async Task<AppUser?> GetUserByIdsAsync(string userId)

@@ -29,7 +29,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
 
         var orderId = await _sender.Send(
             new CheckoutCartCommand(
-                user.Id,
+                user.IdentityUserId,
                 request.CartId,
                 request.ShippingAddressId,
                 request.BillingAddressId,
@@ -55,7 +55,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        var order = await _sender.Send(new GetOrderByIdQuery(user.Id, orderId), ct);
+        var order = await _sender.Send(new GetOrderByIdQuery(user.IdentityUserId, orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(
@@ -71,7 +71,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        var orders = await _sender.Send(new GetCustomerOrdersQuery(user.Id), ct);
+        var orders = await _sender.Send(new GetCustomerOrdersQuery(user.IdentityUserId), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(
@@ -87,7 +87,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new ConfirmOrderCommand(user.Id, orderId), ct);
+        await _sender.Send(new ConfirmOrderCommand(user.IdentityUserId, orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(
@@ -103,7 +103,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new ShipOrderCommand(user.Id, orderId), ct);
+        await _sender.Send(new ShipOrderCommand(user.IdentityUserId, orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(
@@ -119,7 +119,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new DeliverOrderCommand(user.Id, orderId), ct);
+        await _sender.Send(new DeliverOrderCommand(user.IdentityUserId, orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(
@@ -139,7 +139,10 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new CancelOrderCommand(user.Id, orderId, request.Reason), ct);
+        await _sender.Send(
+            new CancelOrderCommand(user.IdentityUserId, orderId, request.Reason),
+            ct
+        );
 
         return Ok(
             new StandardSuccessResponse<object?>(

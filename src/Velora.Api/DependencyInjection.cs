@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Velora.Api.Middleware;
 using Velora.Api.Services;
@@ -9,7 +10,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        services.AddCustomApiVersioning().AddCurrentUser().AddExceptionHandling();
+        services.AddJsonOptions().AddCustomApiVersioning().AddCurrentUser().AddExceptionHandling();
 
         return services;
     }
@@ -46,6 +47,18 @@ public static class DependencyInjection
         services.AddProblemDetails();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddJsonOptions(this IServiceCollection services)
+    {
+        services
+            .AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
         return services;
     }

@@ -13,16 +13,18 @@ public sealed class TokenProvider(IConfiguration _configuration, IVeloraContext 
     : ITokenProvider
 {
     public async Task<TokenResponse> GenerateJwtTokenAsync(
+        Guid CustomerId,
         AppUserDto user,
         CancellationToken ct = default
     )
     {
-        var tokenResult = await GenerateJwtToken(user, ct);
+        var tokenResult = await GenerateJwtToken(CustomerId, user, ct);
 
         return tokenResult;
     }
 
     private async Task<TokenResponse> GenerateJwtToken(
+        Guid CustomerId,
         AppUserDto user,
         CancellationToken ct = default
     )
@@ -36,8 +38,9 @@ public sealed class TokenProvider(IConfiguration _configuration, IVeloraContext 
 
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserId),
-            new Claim(JwtRegisteredClaimNames.Email, user.UserEmail),
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+            new Claim("customerId", CustomerId.ToString()),
+            // new Claim(JwtRegisteredClaimNames.Email, user.UserEmail),
         };
 
         foreach (var role in user.Roles)

@@ -57,12 +57,12 @@ public sealed class SoftDeleteInterceptor(
             if (EntityState.Deleted == entry.State)
             {
                 entry.State = EntityState.Modified;
-                entry.Entity.MarkAsDeleted(user.Id);
+                entry.Entity.MarkAsDeleted(user.CustomerId);
 
                 _logger.LogInformation(
                     "Soft deleted auditable entity {entity} with user id {userid} at {time}",
                     entry.Entity.GetType().Name,
-                    user.Id,
+                    user.CustomerId,
                     time
                 );
             }

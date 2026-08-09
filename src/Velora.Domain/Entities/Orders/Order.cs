@@ -76,7 +76,7 @@ public sealed class Order : AuditableEntity
                 OrderStatus.Pending
             );
 
-        var orderItem = OrderItem.Create(this.Id, productId, quantity, unitPrice);
+        var orderItem = OrderItem.Create(this.Id, productId, quantity, unitPrice, discount);
 
         _orderItems.Add(orderItem);
     }

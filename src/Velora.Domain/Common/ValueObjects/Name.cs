@@ -6,7 +6,7 @@ namespace Velora.Domain.Common.ValueObjects;
 public sealed record Name
 {
     public string Value { get; }
-    private const int MaxLength = 20;
+    private const int MaxLength = 100;
     private const int MinLength = 3;
 
     private Name(string value)

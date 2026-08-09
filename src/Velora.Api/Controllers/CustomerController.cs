@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Velora.Api.Contracts;
 using Velora.Application.Common.Extensions;
@@ -16,6 +17,7 @@ using Velora.Application.Features.Customers.Queries.GetCustomerProfile;
 
 namespace Velora.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [ApiVersion(1)]
 [Route("api/v{version:ApiVersion}/customers")]
@@ -55,7 +57,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
     {
         var currentUser = _user.GetCurrentUserOrSystem();
 
-        var result = await _sender.Send(new GetCustomerProfileQuery(currentUser.Id), ct);
+        var result = await _sender.Send(
+            new GetCustomerProfileQuery(currentUser.IdentityUserId),
+            ct
+        );
 
         return Ok(
             new StandardSuccessResponse<object>(
@@ -112,12 +117,15 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
         );
     }
 
+    [Authorize]
     [HttpPost("addresses")]
     public async Task<IActionResult> AddCustomerAddress(
         CreateAddressRequest request,
         CancellationToken ct
     )
     {
+        var user = _user.GetCurrentUserOrSystem();
+
         await _sender.Send(
             new CreateAddressCommand(
                 request.AddressLine1,
@@ -125,14 +133,14 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
                 request.City,
                 request.State,
                 request.Country,
-                request.CustomerId
+                user.CustomerId
             ),
             ct
         );
 
         return CreatedAtAction(
             nameof(GetAddressById),
-            new { customerId = request.CustomerId, addressId = (Guid?)null },
+            new { customerId = user.IdentityUserId, addressId = (Guid?)null },
             new StandardSuccessResponse<object?>(
                 default,
                 StatusCodes.Status200OK,
@@ -141,6 +149,7 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
         );
     }
 
+    [Authorize]
     [HttpPut("{addressId:guid}/addresses")]
     public async Task<IActionResult> UpdateCustomerAddress(
         Guid addressId,
@@ -148,6 +157,8 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
         CancellationToken ct
     )
     {
+        var user = _user.GetCurrentUserOrSystem();
+
         await _sender.Send(
             new UpdateAddressCommand(
                 request.AddressLine1,
@@ -155,7 +166,7 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
                 request.City,
                 request.State,
                 request.Country,
-                request.CustomerId,
+                user.CustomerId,
                 addressId
             ),
             ct
@@ -170,14 +181,13 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
         );
     }
 
+    [Authorize]
     [HttpDelete("{addressId:guid}/addresses")]
-    public async Task<IActionResult> DeleteCustomerAddress(
-        Guid addressId,
-        DeleteAddressRequest request,
-        CancellationToken ct
-    )
+    public async Task<IActionResult> DeleteCustomerAddress(Guid addressId, CancellationToken ct)
     {
-        await _sender.Send(new DeleteAddressCommand(addressId, request.CustomerId), ct);
+        var user = _user.GetCurrentUserOrSystem();
+
+        await _sender.Send(new DeleteAddressCommand(addressId, user.CustomerId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(

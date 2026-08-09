@@ -5,6 +5,10 @@ namespace Velora.Application.Common.Interfaces;
 
 public interface ITokenProvider
 {
-    Task<TokenResponse> GenerateJwtTokenAsync(AppUserDto user, CancellationToken ct = default);
+    Task<TokenResponse> GenerateJwtTokenAsync(
+        Guid CustomerId,
+        AppUserDto user,
+        CancellationToken ct = default
+    );
     ClaimsPrincipal? GetPrincipalFromExpiredToken(string token);
 }

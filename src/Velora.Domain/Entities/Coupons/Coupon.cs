@@ -62,4 +62,14 @@ public class Coupon : AuditableEntity
 
         IsUsed = true;
     }
+
+    public Money CalculateDiscount(Money? amount)
+    {
+        if (amount == Money.Zero)
+            return Money.Zero;
+
+        var discount = amount!.Amount * Discount.Amount / 100m;
+
+        return Money.Create(discount);
+    }
 }

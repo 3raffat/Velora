@@ -43,12 +43,12 @@ public sealed class AuditableEntityInterceptor(ICurrentUser _user) : SaveChanges
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.MarkAsCreated(user.Id);
+                entry.Entity.MarkAsCreated(user.CustomerId);
             }
 
             if (entry.State == EntityState.Modified)
             {
-                entry.Entity.MarkAsUpdated(user.Id);
+                entry.Entity.MarkAsUpdated(user.CustomerId);
             }
         }
     }

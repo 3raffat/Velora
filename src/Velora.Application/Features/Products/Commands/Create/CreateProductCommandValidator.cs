@@ -10,7 +10,7 @@ public sealed class CreateProductCommandValidator : AbstractValidator<CreateProd
             .NotEmpty()
             .WithMessage("Product name is required.")
             .MinimumLength(3)
-            .MaximumLength(20);
+            .MaximumLength(100);
 
         RuleFor(x => x.Description)
             .NotEmpty()
@@ -23,11 +23,7 @@ public sealed class CreateProductCommandValidator : AbstractValidator<CreateProd
             .GreaterThanOrEqualTo(0)
             .WithMessage("Stock quantity cannot be negative.");
 
-        RuleFor(x => x.ImageUrl)
-            .NotEmpty()
-            .WithMessage("Image URL is required.")
-            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))
-            .WithMessage("Image URL must be a valid absolute URL.");
+        // RuleFor(x => x.ImageUrl).Null();
 
         RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Category is required.");
     }

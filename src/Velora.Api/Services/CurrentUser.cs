@@ -16,9 +16,18 @@ public sealed class CurrentUser(IHttpContextAccessor _httpContextAccessor) : ICu
             return null;
         }
 
-        var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        var identityId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (!Guid.TryParse(id, out var userId))
+        if (!Guid.TryParse(identityId, out var IdentityUserId))
+        {
+            throw new InvalidOperationException(
+                $"Authenticated user is missing a valid '{ClaimTypes.NameIdentifier}' claim."
+            );
+        }
+
+        var customerId = user.FindFirstValue("customerId")!;
+
+        if (!Guid.TryParse(customerId, out var CustomerId))
         {
             throw new InvalidOperationException(
                 $"Authenticated user is missing a valid '{ClaimTypes.NameIdentifier}' claim."
@@ -28,6 +37,6 @@ public sealed class CurrentUser(IHttpContextAccessor _httpContextAccessor) : ICu
         var email = user.FindFirstValue(ClaimTypes.Email);
         var name = user.FindFirstValue(ClaimTypes.Name);
 
-        return new CurrentUserResponse(userId, email, name);
+        return new CurrentUserResponse(CustomerId, IdentityUserId, email, name);
     }
 }

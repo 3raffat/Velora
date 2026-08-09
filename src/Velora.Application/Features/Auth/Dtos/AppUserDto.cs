@@ -3,7 +3,7 @@ using System.Security.Claims;
 namespace Velora.Application.Features.Auth.Dtos;
 
 public sealed record AppUserDto(
-    string UserId,
+    Guid UserId,
     string UserEmail,
     IList<string> Roles,
     IList<Claim> Claims

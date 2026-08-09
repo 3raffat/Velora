@@ -319,7 +319,7 @@ public static class EmailTemplates
                                                         color: #111827;
                                                         margin-bottom: 8px;
                                                     ">
-                                                        {{discount}} JOD OFF
+                                                        {{discount}} % OFF
                                                     </div>
 
                                                     <div style="

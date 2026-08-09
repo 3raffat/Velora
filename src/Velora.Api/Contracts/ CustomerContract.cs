@@ -5,8 +5,7 @@ public sealed record CreateAddressRequest(
     string AddressLine2,
     string City,
     string State,
-    string Country,
-    Guid CustomerId
+    string Country
 );
 
 public sealed record UpdateAddressRequest(
@@ -14,11 +13,8 @@ public sealed record UpdateAddressRequest(
     string AddressLine2,
     string City,
     string State,
-    string Country,
-    Guid CustomerId
+    string Country
 );
-
-public sealed record DeleteAddressRequest(Guid CustomerId);
 
 public sealed record CompleteCustomerProfileRequest(
     Guid IdentityId,

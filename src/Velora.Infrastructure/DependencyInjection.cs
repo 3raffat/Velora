@@ -1,9 +1,12 @@
-﻿using Hangfire;
+﻿using System.Text;
+using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Velora.Application.Common.Interfaces;
 using Velora.Infrastructure.Data;
 using Velora.Infrastructure.Data.Interceptors;
@@ -19,7 +22,12 @@ public static class DependencyInjection
         IConfiguration cfg
     )
     {
-        services.AddDbConnection(cfg).AddIdentityConfiguration().AddHangfire(cfg).AddServices();
+        services
+            .AddAuthenticationService(cfg)
+            .AddDbConnection(cfg)
+            .AddIdentityConfiguration()
+            .AddHangfire(cfg)
+            .AddServices();
 
         services.AddSingleton<TimeProvider>(TimeProvider.System);
         return services;
@@ -93,6 +101,38 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICouponCodeGenerator, CouponCodeGenerator>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddAuthenticationService(
+        this IServiceCollection services,
+        IConfiguration cfg
+    )
+    {
+        services
+            .AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(opt =>
+            {
+                var jwtSettings = cfg.GetSection("JwtSettings");
+
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidAudience = jwtSettings["Audience"],
+                    ValidIssuer = jwtSettings["Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
+                    ),
+                };
+            });
         return services;
     }
 }

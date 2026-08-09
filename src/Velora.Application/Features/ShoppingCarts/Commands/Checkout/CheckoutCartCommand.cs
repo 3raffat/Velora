@@ -9,5 +9,6 @@ public sealed record CheckoutCartCommand(
     Guid ShippingAddressId,
     Guid BillingAddressId,
     PaymentMethod PaymentMethod,
-    decimal ShippingCost = 0
+    decimal ShippingCost = 0,
+    string? PromoCode = null
 ) : IRequest<Guid>;

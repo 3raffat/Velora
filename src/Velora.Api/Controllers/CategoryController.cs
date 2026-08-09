@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Velora.Api.Contracts;
@@ -44,6 +45,7 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
         );
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create(CreateCategoryRequest request, CancellationToken ct)
     {
@@ -54,7 +56,7 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
 
         return CreatedAtAction(
             nameof(GetById),
-            new { id = result },
+            new { id = result.Id },
             new StandardSuccessResponse<object>(
                 result,
                 StatusCodes.Status201Created,
@@ -63,6 +65,7 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
         );
     }
 
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
         Guid id,

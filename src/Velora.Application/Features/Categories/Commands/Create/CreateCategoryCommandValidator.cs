@@ -7,7 +7,7 @@ public sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCat
 {
     public CreateCategoryCommandValidator()
     {
-        RuleFor(c => c.Name).MinimumLength(3).MaximumLength(20).NotEmpty();
+        RuleFor(c => c.Name).MinimumLength(3).MaximumLength(100).NotEmpty();
 
         RuleFor(c => c.Description).MinimumLength(10).MaximumLength(500).NotEmpty();
     }

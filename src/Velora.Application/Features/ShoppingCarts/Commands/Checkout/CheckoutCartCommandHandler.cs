@@ -5,6 +5,7 @@ using Velora.Application.Common.Interfaces;
 using Velora.Application.Features.Products.Exceptions;
 using Velora.Application.Features.ShoppingCarts.Exceptions;
 using Velora.Domain.Common.ValueObjects;
+using Velora.Domain.Entities.Coupons;
 using Velora.Domain.Entities.Orders;
 using Velora.Domain.Entities.Orders.ValueObjects;
 using Velora.Domain.Entities.Products.Exceptions;
@@ -74,11 +75,20 @@ public sealed class CheckoutCartCommandHandler(
             Money.Create(request.ShippingCost)
         );
 
+        var coupon = await _context.Coupons.FirstOrDefaultAsync(
+            c => c.Code == request.PromoCode && c.CustomerId == request.CustomerId,
+            ct
+        );
+
         foreach (var item in cart.CartItems)
         {
             var product = products.First(p => p.Id == item.ProductId);
 
-            order.AddItem(product.Id, item.Quantity, product.Price);
+            var itemSubtotal = product.Price * item.Quantity;
+
+            var discount = coupon is not null ? coupon.CalculateDiscount(itemSubtotal) : Money.Zero;
+
+            order.AddItem(product.Id, item.Quantity, product.Price, discount.Amount);
 
             product.DecreaseStock(item.Quantity);
         }
@@ -91,6 +101,7 @@ public sealed class CheckoutCartCommandHandler(
         );
 
         cart.Checkout();
+        coupon?.Use();
 
         await _context.Orders.AddAsync(order);
         await _context.Payments.AddAsync(payment);

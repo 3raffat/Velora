@@ -17,7 +17,7 @@ public static class DependencyInjection
             .AddCustomApiVersioning()
             .AddCurrentUser()
             .AddExceptionHandling()
-            .AddAddOpenApiConfiguration();
+            .AddSwagger();
 
         return services;
     }
@@ -70,54 +70,25 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddAddOpenApiConfiguration(this IServiceCollection services)
+    public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
-        services.AddOpenApi(options =>
+        services.AddSwaggerGen(options =>
         {
-            options.AddDocumentTransformer(
-                (document, context, cancellationToken) =>
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Velora API", Version = "v1" });
+
+            options.AddSecurityDefinition(
+                "Bearer",
+                new OpenApiSecurityScheme
                 {
-                    document.Components ??= new OpenApiComponents();
-
-                    document.Components.SecuritySchemes ??=
-                        new Dictionary<string, IOpenApiSecurityScheme>();
-
-                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
-                    {
-                        Type = SecuritySchemeType.Http,
-                        Scheme = "bearer",
-                        BearerFormat = "JWT",
-                    };
-
-                    return Task.CompletedTask;
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter your JWT token below (no 'Bearer ' prefix needed).",
                 }
             );
-
-            options.AddOperationTransformer(
-                (operation, context, cancellationToken) =>
-                {
-                    var metadata = context.Description.ActionDescriptor.EndpointMetadata;
-
-                    var requiresAuth = metadata.OfType<IAuthorizeData>().Any();
-
-                    var allowsAnonymous = metadata.OfType<IAllowAnonymous>().Any();
-
-                    if (requiresAuth && !allowsAnonymous)
-                    {
-                        operation.Security ??= [];
-
-                        operation.Security.Add(
-                            new OpenApiSecurityRequirement
-                            {
-                                [new OpenApiSecuritySchemeReference("Bearer", context.Document)] =
-                                [],
-                            }
-                        );
-                    }
-
-                    return Task.CompletedTask;
-                }
-            );
+            options.OperationFilter<SecurityRequirementsOperationFilter>();
         });
         return services;
     }

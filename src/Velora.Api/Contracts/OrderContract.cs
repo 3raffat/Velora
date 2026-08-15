@@ -12,3 +12,13 @@ public sealed record CheckoutRequest(
 );
 
 public sealed record CancelOrderRequest(string Reason);
+
+public sealed record ApproveCancellationRequest(decimal? CancellationCharges = null);
+
+public sealed record RejectCancellationRequest(string Remarks);
+
+public sealed record CompleteRefundRequest(string TransactionId);
+
+public sealed record RejectRefundRequest(string Reason);
+
+public sealed record RequestCancellationRequest(string Reason);

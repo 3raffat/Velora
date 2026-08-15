@@ -16,6 +16,7 @@ namespace Velora.Api.Controllers;
 [Authorize]
 [ApiController]
 [ApiVersion(1)]
+[Tags("Cart-Management")]
 [Route("api/v{version:apiVersion}/carts")]
 public class CartController(ISender _sender, ICurrentUser _currentUser) : ControllerBase
 {
@@ -24,7 +25,7 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        var cart = await _sender.Send(new GetActiveCartQuery(user.IdentityUserId), ct);
+        var cart = await _sender.Send(new GetActiveCartQuery(user.CustomerId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(

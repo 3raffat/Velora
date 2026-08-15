@@ -20,6 +20,7 @@ namespace Velora.Api.Controllers;
 [Authorize]
 [ApiController]
 [ApiVersion(1)]
+[Tags("Customer-Management")]
 [Route("api/v{version:ApiVersion}/customers")]
 public class CustomerController(ISender _sender, ICurrentUser _user) : ControllerBase
 {
@@ -85,10 +86,12 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
         );
     }
 
-    [HttpGet("{customerId:guid}/addresses")]
-    public async Task<IActionResult> GetCustomerAddresses(Guid customerId, CancellationToken ct)
+    [HttpGet("addresses")]
+    public async Task<IActionResult> GetCustomerAddresses(CancellationToken ct)
     {
-        var result = await _sender.Send(new GetCustomerAddressesQuery(customerId), ct);
+        var currentUser = _user.GetCurrentUserOrSystem();
+
+        var result = await _sender.Send(new GetCustomerAddressesQuery(currentUser.CustomerId), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(

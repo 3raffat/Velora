@@ -6,7 +6,6 @@ using Velora.Api.Contracts;
 using Velora.Application.Common.Extensions;
 using Velora.Application.Common.Interfaces;
 using Velora.Application.Common.Response;
-using Velora.Application.Features.Orders.Commands.Cancel;
 using Velora.Application.Features.Orders.Commands.Confirm;
 using Velora.Application.Features.Orders.Commands.Deliver;
 using Velora.Application.Features.Orders.Commands.Ship;
@@ -19,6 +18,7 @@ namespace Velora.Api.Controllers;
 [Authorize]
 [ApiController]
 [ApiVersion(1)]
+[Tags("Order-Management")]
 [Route("api/v{version:apiVersion}/orders")]
 public class OrderController(ISender _sender, ICurrentUser _currentUser) : ControllerBase
 {
@@ -127,29 +127,6 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
                 default,
                 StatusCodes.Status200OK,
                 "Order delivered successfully"
-            )
-        );
-    }
-
-    [HttpPut("{orderId:guid}/cancel")]
-    public async Task<IActionResult> CancelOrder(
-        Guid orderId,
-        CancelOrderRequest request,
-        CancellationToken ct
-    )
-    {
-        var user = _currentUser.GetCurrentUserOrSystem();
-
-        await _sender.Send(
-            new CancelOrderCommand(user.IdentityUserId, orderId, request.Reason),
-            ct
-        );
-
-        return Ok(
-            new StandardSuccessResponse<object?>(
-                default,
-                StatusCodes.Status200OK,
-                "Order canceled successfully"
             )
         );
     }

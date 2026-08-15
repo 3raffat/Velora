@@ -12,6 +12,7 @@ namespace Velora.Api.Controllers;
 
 [ApiController]
 [ApiVersion(1)]
+[Tags("Product-Management-Admin")]
 [Route("api/v{version:ApiVersion}/products")]
 public sealed class ProductController(ISender _sender) : ControllerBase
 {

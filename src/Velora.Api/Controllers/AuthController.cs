@@ -10,6 +10,7 @@ using Velora.Application.Features.Auth.Dtos;
 namespace Velora.Api.Controllers;
 
 [ApiController]
+[Tags("Auth")]
 [ApiVersion(1)]
 [Route("api/v{version:ApiVersion}/auth")]
 public sealed class AuthController(ISender _sender) : ControllerBase

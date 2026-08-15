@@ -14,6 +14,7 @@ namespace Velora.Api.Controllers;
 
 [ApiController]
 [ApiVersion(1)]
+[Tags("Category-Management-Admin")]
 [Route("api/v{version:ApiVersion}/categories")]
 public sealed class CategoryController(ISender _sender) : ControllerBase
 {

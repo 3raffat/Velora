@@ -4,6 +4,7 @@ using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Customers;
 using Velora.Domain.Entities.Customers.Exceptions;
 using Velora.Domain.Entities.Orders.Enums;
+using Velora.Domain.Entities.Orders.Events;
 using Velora.Domain.Entities.Orders.Exceptions;
 using Velora.Domain.Entities.Orders.ValueObjects;
 
@@ -15,11 +16,10 @@ public sealed class Order : AuditableEntity
     public DateTime OrderDate { get; private set; }
     public Money ShippingCost { get; private set; } = null!;
     public OrderStatus OrderStatus { get; private set; }
-
-    public decimal TotalBaseAmount => _orderItems.Sum(i => i.UnitPrice.Amount * i.Quantity);
-    public decimal TotalDiscountAmount => _orderItems.Sum(i => i.Discount);
-    public decimal TotalAmount => TotalBaseAmount - TotalDiscountAmount + ShippingCost.Amount;
-
+    public decimal DiscountPercentage { get; private set; }
+    public decimal TotalBaseAmount { get; private set; }
+    public decimal TotalDiscountAmount { get; private set; }
+    public decimal TotalAmount { get; private set; }
     public Guid CustomerId { get; private set; }
     public Customer Customer { get; private set; } = null!;
 
@@ -40,7 +40,8 @@ public sealed class Order : AuditableEntity
         Guid customerId,
         AddressSnapshot billingAddress,
         AddressSnapshot shippingAddress,
-        Money shippingCost
+        Money shippingCost,
+        decimal discountPercentage = 0
     )
         : base(id)
     {
@@ -50,20 +51,82 @@ public sealed class Order : AuditableEntity
         ShippingAddress = shippingAddress;
         ShippingCost = shippingCost;
         OrderDate = DateTime.UtcNow;
+        DiscountPercentage = discountPercentage;
         OrderStatus = OrderStatus.Pending;
     }
 
     public static Order Create(
         Guid customerId,
-        AddressSnapshot billingAddress,
+        AddressSnapshot? billingAddress,
         AddressSnapshot shippingAddress,
-        Money shippingCost
+        Money shippingCost,
+        PaymentMethod paymentMethod,
+        decimal discountPercentage = 0
     )
     {
         if (customerId == Guid.Empty)
             throw new RequiredFieldException(nameof(customerId));
 
-        return new Order(Guid.NewGuid(), customerId, billingAddress, shippingAddress, shippingCost);
+        if (paymentMethod is PaymentMethod.CashOnDelivery)
+            return CreateCashOnDelivery(
+                customerId,
+                shippingAddress,
+                shippingCost,
+                discountPercentage
+            );
+
+        if (billingAddress is null)
+            throw new RequiredFieldException(nameof(billingAddress));
+
+        return CreateWithOnlinePayment(
+            customerId,
+            billingAddress,
+            shippingAddress,
+            shippingCost,
+            discountPercentage
+        );
+    }
+
+    private static Order CreateWithOnlinePayment(
+        Guid customerId,
+        AddressSnapshot billingAddress,
+        AddressSnapshot shippingAddress,
+        Money shippingCost,
+        decimal discountPercentage = 0
+    )
+    {
+        var order = new Order(
+            Guid.NewGuid(),
+            customerId,
+            billingAddress,
+            shippingAddress,
+            shippingCost,
+            discountPercentage
+        );
+        order.AddDomainEvent(new OrderCreatedEvent(order.Id, customerId));
+
+        return order;
+    }
+
+    private static Order CreateCashOnDelivery(
+        Guid customerId,
+        AddressSnapshot shippingAddress,
+        Money shippingCost,
+        decimal discountPercentage = 0
+    )
+    {
+        var order = new Order(
+            Guid.NewGuid(),
+            customerId,
+            shippingAddress,
+            shippingAddress,
+            shippingCost,
+            discountPercentage
+        );
+
+        order.AddDomainEvent(new OrderCreatedEvent(order.Id, customerId));
+
+        return order;
     }
 
     public void AddItem(Guid productId, int quantity, Money unitPrice, decimal discount = 0)
@@ -79,6 +142,8 @@ public sealed class Order : AuditableEntity
         var orderItem = OrderItem.Create(this.Id, productId, quantity, unitPrice, discount);
 
         _orderItems.Add(orderItem);
+
+        RecalculateTotals();
     }
 
     public void Confirm()
@@ -91,17 +156,17 @@ public sealed class Order : AuditableEntity
                 OrderStatus.Pending
             );
 
-        OrderStatus = OrderStatus.Processing;
+        OrderStatus = OrderStatus.Confirmed;
     }
 
     public void Ship()
     {
-        if (OrderStatus != OrderStatus.Processing)
+        if (OrderStatus != OrderStatus.Confirmed)
             throw new InvalidStatusException(
                 nameof(Order),
                 nameof(Ship),
                 OrderStatus,
-                OrderStatus.Processing
+                OrderStatus.Confirmed
             );
 
         OrderStatus = OrderStatus.Shipped;
@@ -123,21 +188,35 @@ public sealed class Order : AuditableEntity
     public void Cancel()
     {
         if (OrderStatus is OrderStatus.Shipped or OrderStatus.Delivered)
-            throw new InvalidStatusException("Cannot cancel an order that has already shipped.");
-
-        if (OrderStatus == OrderStatus.Canceled)
             throw new InvalidStatusException(
                 nameof(Order),
                 nameof(Cancel),
                 OrderStatus,
-                OrderStatus.Canceled
+                OrderStatus.Confirmed
             );
 
-        OrderStatus = OrderStatus.Canceled;
+        if (OrderStatus == OrderStatus.Cancelled)
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(Cancel),
+                OrderStatus,
+                OrderStatus.Cancelled
+            );
+
+        OrderStatus = OrderStatus.Cancelled;
     }
 
     private static string GenerateOrderNumber(Guid Id)
     {
         return $"ORD-{DateTime.UtcNow.ToString("yyyyMMdd")}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+    }
+
+    private void RecalculateTotals()
+    {
+        TotalBaseAmount = _orderItems.Sum(i => i.UnitPrice.Amount * i.Quantity);
+
+        TotalDiscountAmount = TotalBaseAmount * (DiscountPercentage / 100);
+
+        TotalAmount = TotalBaseAmount - TotalDiscountAmount + ShippingCost.Amount;
     }
 }

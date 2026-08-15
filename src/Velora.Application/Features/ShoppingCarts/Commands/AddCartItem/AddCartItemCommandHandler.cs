@@ -30,10 +30,7 @@ public sealed class AddCartItemCommandHandler(
         var cart = await _context
             .Carts.Include(c => c.CartItems)
             .FirstOrDefaultAsync(
-                c =>
-                    c.Id == request.CartId
-                    && c.CustomerId == request.CustomerId
-                    && c.Status == CartStatus.Active,
+                c => c.CustomerId == request.CustomerId && c.Status == CartStatus.Active,
                 ct
             );
 

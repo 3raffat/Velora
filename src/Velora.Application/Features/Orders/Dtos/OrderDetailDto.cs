@@ -13,6 +13,7 @@ public sealed record OrderDetailDto(
     decimal TotalAmount,
     AddressSnapshotDto BillingAddress,
     AddressSnapshotDto ShippingAddress,
+    IReadOnlyCollection<OrderItemDto> Items,
     PaymentDto? Payment,
-    IReadOnlyCollection<OrderItemDto> Items
+    CancellationDto? Cancellation
 );

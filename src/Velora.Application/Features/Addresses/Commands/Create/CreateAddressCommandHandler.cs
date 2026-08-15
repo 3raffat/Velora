@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Velora.Application.Common.Interfaces;
+using Velora.Application.Features.Addresses.Dtos;
+using Velora.Application.Features.Addresses.Mapper;
 using Velora.Application.Features.Customers.Exceptions;
 
 namespace Velora.Application.Features.Addresses.Commands.Create;
@@ -9,9 +11,9 @@ namespace Velora.Application.Features.Addresses.Commands.Create;
 public sealed class CreateAddressCommandHandler(
     IVeloraContext _context,
     ILogger<CreateAddressCommandHandler> _logger
-) : IRequestHandler<CreateAddressCommand>
+) : IRequestHandler<CreateAddressCommand, AddressDto>
 {
-    public async Task Handle(CreateAddressCommand request, CancellationToken ct)
+    public async Task<AddressDto> Handle(CreateAddressCommand request, CancellationToken ct)
     {
         var customer = await _context
             .Customers.Include(c => c.Addresses)
@@ -30,6 +32,10 @@ public sealed class CreateAddressCommandHandler(
 
         await _context.SaveChangesAsync(ct);
 
+        var address = customer.Addresses.Last();
+
         _logger.LogInformation("Address added for customer {CustomerId}", customer.Id);
+
+        return address.ToDto();
     }
 }

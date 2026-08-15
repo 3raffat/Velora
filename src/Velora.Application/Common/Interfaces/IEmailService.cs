@@ -1,3 +1,4 @@
+using Velora.Application.Features.Orders.Dtos;
 using Velora.Domain.Entities.Coupons.Enums;
 
 namespace Velora.Application.Common.Interfaces;
@@ -27,6 +28,26 @@ public interface IEmailService
         decimal discount,
         DateTime expiresAt,
         CouponType couponType,
+        CancellationToken cancellationToken = default
+    );
+
+    Task SendOrderConfirmationEmailAsync(
+        string email,
+        OrderDetailDto order,
+        CancellationToken cancellationToken = default
+    );
+
+    Task SendCancellationConfirmationEmailAsync(
+        string email,
+        OrderDetailDto order,
+        CancellationDto cancellation,
+        CancellationToken cancellationToken = default
+    );
+
+    Task SendRefundConfirmationEmailAsync(
+        string email,
+        OrderDetailDto order,
+        RefundDto refund,
         CancellationToken cancellationToken = default
     );
 }

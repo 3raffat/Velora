@@ -84,6 +84,19 @@ public sealed class Customer : SoftDeletableEntity
         string country
     )
     {
+        if (
+            _addresses.Any(a =>
+                a.AddressLine1.Equals(addressLine1, StringComparison.OrdinalIgnoreCase)
+                && a.AddressLine2 == addressLine2
+                && a.City.Equals(city, StringComparison.OrdinalIgnoreCase)
+                && a.State.Equals(state, StringComparison.OrdinalIgnoreCase)
+                && a.Country.Equals(country, StringComparison.OrdinalIgnoreCase)
+            )
+        )
+        {
+            throw new DuplicateAddressException();
+        }
+
         if (_addresses.Count >= MaxAddresses)
             throw new MaxAddressesReachedException(MaxAddresses);
 

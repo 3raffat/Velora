@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Velora.Application.Common.Interfaces;
+using Velora.Application.Features.Addresses.Exceptions;
 using Velora.Application.Features.Products.Exceptions;
 using Velora.Application.Features.ShoppingCarts.Exceptions;
 using Velora.Domain.Common.ValueObjects;
@@ -42,18 +43,6 @@ public sealed class CheckoutCartCommandHandler(
             .Products.Where(p => productIds.Contains(p.Id))
             .ToListAsync(ct);
 
-        //check the stock
-        foreach (var item in cart.CartItems)
-        {
-            var product = products.FirstOrDefault(p => p.Id == item.ProductId);
-
-            if (product is null)
-                throw new ProductNotFoundException(item.ProductId);
-
-            if (product.StockQuantity < item.Quantity)
-                throw new InsufficientStockException(product.StockQuantity, item.Quantity);
-        }
-
         var shippingAddress = await _context.Addresses.FirstAsync(
             a => a.Id == request.ShippingAddressId && a.CustomerId == request.CustomerId,
             ct
@@ -61,35 +50,46 @@ public sealed class CheckoutCartCommandHandler(
 
         var shippingSnapshot = AddressSnapshot.From(shippingAddress);
 
-        var billingAddress = await _context.Addresses.FirstAsync(
-            a => a.Id == request.BillingAddressId && a.CustomerId == request.CustomerId,
-            ct
-        );
+        AddressSnapshot? billingSnapshot = null;
 
-        var billingSnapshot = AddressSnapshot.From(billingAddress);
+        if (request.BillingAddressId is not null)
+        {
+            var billingAddress = await _context.Addresses.FirstOrDefaultAsync(
+                a => a.Id == request.BillingAddressId && a.CustomerId == request.CustomerId,
+                ct
+            );
 
-        var order = Order.Create(
-            request.CustomerId,
-            billingSnapshot,
-            shippingSnapshot,
-            Money.Create(request.ShippingCost)
-        );
+            if (billingAddress is null)
+                throw new AddressNotFoundException(request.BillingAddressId);
+
+            billingSnapshot = AddressSnapshot.From(billingAddress);
+        }
 
         var coupon = await _context.Coupons.FirstOrDefaultAsync(
             c => c.Code == request.PromoCode && c.CustomerId == request.CustomerId,
             ct
         );
+        var discountPercentage = coupon?.Discount.Amount ?? 0;
+
+        var order = Order.Create(
+            request.CustomerId,
+            billingSnapshot,
+            shippingSnapshot,
+            Money.Create(request.ShippingCost),
+            request.PaymentMethod,
+            discountPercentage
+        );
 
         foreach (var item in cart.CartItems)
         {
-            var product = products.First(p => p.Id == item.ProductId);
+            var product =
+                products.FirstOrDefault(p => p.Id == item.ProductId)
+                ?? throw new ProductNotFoundException(item.ProductId);
 
-            var itemSubtotal = product.Price * item.Quantity;
+            if (product.StockQuantity < item.Quantity)
+                throw new InsufficientStockException(product.StockQuantity, item.Quantity);
 
-            var discount = coupon is not null ? coupon.CalculateDiscount(itemSubtotal) : Money.Zero;
-
-            order.AddItem(product.Id, item.Quantity, product.Price, discount.Amount);
-
+            order.AddItem(product.Id, item.Quantity, product.Price);
             product.DecreaseStock(item.Quantity);
         }
 
@@ -102,6 +102,7 @@ public sealed class CheckoutCartCommandHandler(
 
         cart.Checkout();
         coupon?.Use();
+        order.Confirm();
 
         await _context.Orders.AddAsync(order);
         await _context.Payments.AddAsync(payment);

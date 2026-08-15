@@ -1,4 +1,5 @@
 using MediatR;
+using Velora.Application.Features.Addresses.Dtos;
 
 namespace Velora.Application.Features.Addresses.Commands.Create;
 
@@ -9,4 +10,4 @@ public sealed record CreateAddressCommand(
     string State,
     string Country,
     Guid CustomerId
-) : IRequest;
+) : IRequest<AddressDto>;

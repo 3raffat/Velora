@@ -14,7 +14,10 @@ public sealed class GetOrderByIdQueryHandler(IVeloraContext _context)
     {
         var order = await _context
             .Orders.Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
             .Include(o => o.Payment)
+            .Include(o => o.Cancellation)
+                .ThenInclude(c => c!.Refund)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 o => o.Id == request.OrderId && o.CustomerId == request.CustomerId,

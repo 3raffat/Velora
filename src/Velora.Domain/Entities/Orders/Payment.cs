@@ -58,4 +58,14 @@ public sealed class Payment : AuditableEntity
 
         Status = PaymentStatus.Failed;
     }
+
+    public void MarkRefunded()
+    {
+        if (Status != PaymentStatus.Completed)
+            throw new InvalidOperationException(
+                "Only a completed payment can be marked as refunded."
+            );
+
+        Status = PaymentStatus.Refunded;
+    }
 }

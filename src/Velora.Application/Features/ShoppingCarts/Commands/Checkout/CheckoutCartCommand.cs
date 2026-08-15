@@ -7,7 +7,7 @@ public sealed record CheckoutCartCommand(
     Guid CustomerId,
     Guid CartId,
     Guid ShippingAddressId,
-    Guid BillingAddressId,
+    Guid? BillingAddressId,
     PaymentMethod PaymentMethod,
     decimal ShippingCost = 0,
     string? PromoCode = null

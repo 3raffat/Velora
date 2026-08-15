@@ -32,8 +32,9 @@ public static class OrderMapper
             order.TotalAmount,
             order.BillingAddress.ToDto(),
             order.ShippingAddress.ToDto(),
+            order.OrderItems.Select(i => i.ToDto()).ToList(),
             order.Payment?.ToDto(),
-            order.OrderItems.Select(i => i.ToDto()).ToList()
+            order.Cancellation?.ToDto()
         );
     }
 
@@ -42,6 +43,7 @@ public static class OrderMapper
         return new OrderItemDto(
             item.Id,
             item.ProductId,
+            item.Product.Name.Value,
             item.Quantity,
             item.UnitPrice.Amount,
             item.Discount,
@@ -69,6 +71,33 @@ public static class OrderMapper
             payment.Amount.Amount,
             payment.TransactionId,
             payment.PaymentDate
+        );
+    }
+
+    public static CancellationDto ToDto(this Cancellation cancellation)
+    {
+        return new CancellationDto(
+            cancellation.Id,
+            cancellation.Reason,
+            cancellation.Status,
+            cancellation.RequestedAt,
+            cancellation.ProcessedAt,
+            cancellation.OrderAmount.Amount,
+            cancellation.CancellationCharges,
+            cancellation.Remarks,
+            cancellation.Refund?.ToDto()
+        );
+    }
+
+    public static RefundDto ToDto(this Refund refund)
+    {
+        return new RefundDto(
+            refund.Id,
+            refund.Amount.Amount,
+            refund.Status,
+            refund.RefundMethod,
+            refund.RefundReason,
+            refund.TransactionId
         );
     }
 }

@@ -2,6 +2,7 @@ using Velora.Domain.Common;
 using Velora.Domain.Common.Exceptions;
 using Velora.Domain.Common.ValueObjects;
 using Velora.Domain.Entities.Orders.Enums;
+using Velora.Domain.Entities.Orders.Events;
 using Velora.Domain.Entities.Orders.Exceptions;
 
 namespace Velora.Domain.Entities.Orders;
@@ -69,6 +70,8 @@ public class Cancellation : AuditableEntity
         ProcessedAt = DateTime.UtcNow;
         CancellationCharges = cancellationCharges;
         Status = CancellationStatus.Approved;
+
+        Order.AddDomainEvent(new OrderCancelledEvent(OrderId, Id, Order.CustomerId));
     }
 
     public void Reject(Guid processedBy, string remarks)

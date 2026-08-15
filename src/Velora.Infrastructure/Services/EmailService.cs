@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MimeKit;
 using Velora.Application.Common.Interfaces;
 using Velora.Application.Common.Models;
+using Velora.Application.Features.Orders.Dtos;
 using Velora.Domain.Entities.Coupons.Enums;
 using Velora.Infrastructure.Common;
 
@@ -10,6 +11,42 @@ namespace Velora.Infrastructure.Services;
 
 public sealed class EmailService(IConfiguration _cfg, ILogger<EmailService> _logger) : IEmailService
 {
+    public async Task SendCancellationConfirmationEmailAsync(
+        string email,
+        OrderDetailDto order,
+        CancellationDto cancellation,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var subject = $"Order #{order.OrderNumber} - Cancellation Approved";
+
+        await SendAsync(
+            new EmailMessage(
+                email,
+                $"Order #{order.OrderNumber} - Cancellation Approved",
+                EmailTemplates.CancellationConfirmationBody(order, cancellation)
+            ),
+            cancellationToken
+        );
+    }
+
+    public async Task SendRefundConfirmationEmailAsync(
+        string email,
+        OrderDetailDto order,
+        RefundDto refund,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await SendAsync(
+            new EmailMessage(
+                email,
+                $"Order #{order.OrderNumber} - Refund {refund.Status}",
+                EmailTemplates.RefundConfirmationBody(order, refund)
+            ),
+            cancellationToken
+        );
+    }
+
     public async Task SendConfirmationEmailAsync(
         string to,
         string userName,
@@ -62,6 +99,22 @@ public sealed class EmailService(IConfiguration _cfg, ILogger<EmailService> _log
                 email,
                 "Happy Birthday! Here's a special gift for you",
                 EmailTemplates.BirthdayCouponBody(customerName, couponCode, discount, expiresAt)
+            ),
+            cancellationToken
+        );
+    }
+
+    public async Task SendOrderConfirmationEmailAsync(
+        string email,
+        OrderDetailDto order,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await SendAsync(
+            new EmailMessage(
+                email,
+                $"Order #{order.OrderNumber} Confirmed",
+                EmailTemplates.ToEmailHtml(order)
             ),
             cancellationToken
         );

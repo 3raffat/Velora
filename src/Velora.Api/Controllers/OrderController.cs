@@ -29,12 +29,13 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
 
         var orderId = await _sender.Send(
             new CheckoutCartCommand(
-                user.IdentityUserId,
+                user.CustomerId,
                 request.CartId,
                 request.ShippingAddressId,
                 request.BillingAddressId,
                 request.PaymentMethod,
-                request.ShippingCost
+                request.ShippingCost,
+                request.PromoCode
             ),
             ct
         );

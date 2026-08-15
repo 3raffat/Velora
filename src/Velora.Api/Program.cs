@@ -1,4 +1,6 @@
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Velora.Api;
 using Velora.Application;
@@ -6,8 +8,6 @@ using Velora.Infrastructure;
 using Velora.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddOpenApi();
 
 builder.Services.AddAuthentication();
 builder.Host.UseDefaultServiceProvider(opt =>
@@ -25,7 +25,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.AddPreferredSecuritySchemes("Bearer").EnablePersistentAuthentication();
+    });
 }
 
 app.UseHttpsRedirection();

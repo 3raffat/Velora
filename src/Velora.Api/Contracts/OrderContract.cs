@@ -7,7 +7,8 @@ public sealed record CheckoutRequest(
     Guid BillingAddressId,
     Guid ShippingAddressId,
     PaymentMethod PaymentMethod,
-    decimal ShippingCost = 0
+    decimal ShippingCost = 0,
+    string? PromoCode = null
 );
 
 public sealed record CancelOrderRequest(string Reason);

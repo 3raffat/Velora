@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Velora.Api.Contracts;
 using Velora.Application.Common.Response;
@@ -42,6 +43,7 @@ public sealed class ProductController(ISender _sender) : ControllerBase
         );
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductRequest request, CancellationToken ct)
     {

@@ -99,14 +99,12 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
         );
     }
 
-    [HttpGet("{customerId:guid}/addresses/{addressId:guid}")]
-    public async Task<IActionResult> GetAddressById(
-        Guid customerId,
-        Guid addressId,
-        CancellationToken ct
-    )
+    [HttpGet("addresses/{addressId:guid}")]
+    public async Task<IActionResult> GetAddressById(Guid addressId, CancellationToken ct)
     {
-        var result = await _sender.Send(new GetAddressByIdQuery(addressId, customerId), ct);
+        var user = _user.GetCurrentUserOrSystem();
+
+        var result = await _sender.Send(new GetAddressByIdQuery(addressId, user.CustomerId), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(
@@ -126,7 +124,7 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
     {
         var user = _user.GetCurrentUserOrSystem();
 
-        await _sender.Send(
+        var result = await _sender.Send(
             new CreateAddressCommand(
                 request.AddressLine1,
                 request.AddressLine2,
@@ -140,9 +138,9 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
 
         return CreatedAtAction(
             nameof(GetAddressById),
-            new { customerId = user.IdentityUserId, addressId = (Guid?)null },
+            new { addressId = result.Id },
             new StandardSuccessResponse<object?>(
-                default,
+                result,
                 StatusCodes.Status200OK,
                 "Address Added Successfully"
             )

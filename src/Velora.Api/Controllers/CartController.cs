@@ -35,22 +35,13 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
         );
     }
 
-    [HttpPost("{cartId:guid}/items")]
-    public async Task<IActionResult> AddCartItem(
-        Guid cartId,
-        AddCartItemRequest request,
-        CancellationToken ct
-    )
+    [HttpPost("items")]
+    public async Task<IActionResult> AddCartItem(AddCartItemRequest request, CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
         await _sender.Send(
-            new AddCartItemCommand(
-                user.IdentityUserId,
-                cartId,
-                request.ProductId,
-                request.Quantity
-            ),
+            new AddCartItemCommand(user.CustomerId, request.ProductId, request.Quantity),
             ct
         );
 

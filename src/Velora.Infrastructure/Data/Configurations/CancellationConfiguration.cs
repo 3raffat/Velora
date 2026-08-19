@@ -25,10 +25,18 @@ public sealed class CancellationConfiguration : IEntityTypeConfiguration<Cancell
 
         builder.Property(c => c.ProcessedBy);
 
-        builder
-            .Property(c => c.OrderAmount)
-            .HasConversion(order => order.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(c => c.OrderAmount)
+        //     .HasConversion(order => order.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.OrderAmount,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
 
         builder.Property(c => c.CancellationCharges).HasPrecision(18, 2);
 

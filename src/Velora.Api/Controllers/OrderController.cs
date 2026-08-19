@@ -56,7 +56,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        var order = await _sender.Send(new GetOrderByIdQuery(user.IdentityUserId, orderId), ct);
+        var order = await _sender.Send(new GetOrderByIdQuery(user.CustomerId, orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(
@@ -72,7 +72,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        var orders = await _sender.Send(new GetCustomerOrdersQuery(user.IdentityUserId), ct);
+        var orders = await _sender.Send(new GetCustomerOrdersQuery(user.CustomerId), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(
@@ -104,7 +104,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new ShipOrderCommand(user.IdentityUserId, orderId), ct);
+        await _sender.Send(new ShipOrderCommand(user.CustomerId, orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(

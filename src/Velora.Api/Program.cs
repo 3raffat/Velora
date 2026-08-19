@@ -15,7 +15,10 @@ builder.Host.UseDefaultServiceProvider(opt =>
 
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-builder.Services.AddApplication().AddPresentation().AddInfrastructure(builder.Configuration);
+builder
+    .Services.AddApplication(builder.Configuration)
+    .AddPresentation()
+    .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -26,6 +29,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigin");
 
 app.UseExceptionHandler();
 

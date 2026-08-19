@@ -17,10 +17,18 @@ public sealed class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
 
         builder.Property(ci => ci.Quantity).IsRequired();
 
-        builder
-            .Property(ci => ci.UnitPrice)
-            .HasConversion(UnitPrice => UnitPrice.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(ci => ci.UnitPrice)
+        //     .HasConversion(UnitPrice => UnitPrice.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.UnitPrice,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
 
         builder.Property(ci => ci.Discount).HasPrecision(18, 2).IsRequired();
 

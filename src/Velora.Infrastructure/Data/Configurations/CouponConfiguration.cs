@@ -18,11 +18,18 @@ public sealed class CouponConfiguration : IEntityTypeConfiguration<Coupon>
 
         builder.Property(c => c.Code).IsRequired().HasMaxLength(50);
 
-        builder
-            .Property(c => c.Discount)
-            .HasConversion(discount => discount.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(c => c.Discount)
+        //     .HasConversion(discount => discount.Amount, value => Money.Create(value))
+        //     .IsRequired();
 
+        builder.ComplexProperty(
+            p => p.Discount,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
         builder.Property(c => c.Type).HasConversion<string>().IsRequired();
 
         builder.Property(c => c.ExpiryDate).IsRequired();

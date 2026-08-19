@@ -15,13 +15,13 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(ci => ci.Id).ValueGeneratedNever();
 
-        builder
-            .Property(c => c.Name)
-            .HasConversion(name => name.Value, value => Name.Create(value))
-            .HasColumnName("Name")
-            .HasMaxLength(100)
-            .IsRequired();
-
+        builder.ComplexProperty(
+            p => p.Name,
+            name =>
+            {
+                name.Property(n => n.Value).HasColumnName("Name").HasMaxLength(100).IsRequired();
+            }
+        );
         builder.Property(c => c.Description).HasMaxLength(500);
 
         builder

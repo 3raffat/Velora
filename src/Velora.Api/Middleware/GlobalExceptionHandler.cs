@@ -47,6 +47,8 @@ public sealed class GlobalExceptionHandler(
     private static (int statusCode, string title) MapException(Exception exception) =>
         exception switch
         {
+            AuthException => (StatusCodes.Status400BadRequest, "Authentication Error"),
+
             DomainException => (StatusCodes.Status400BadRequest, "Business Rule Violation"),
 
             ValidationException => (StatusCodes.Status400BadRequest, "Validation Error"),

@@ -20,7 +20,10 @@ public sealed class GetProductsQueryHandler(IVeloraContext _context)
         {
             query = query.Where(p => p.CategoryId == request.CategoryId.Value);
         }
-
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            query = query.Where(p => p.Name.Value.Contains(request.Search));
+        }
         var products = await query.ToListAsync(ct);
 
         return products.ToDtos();

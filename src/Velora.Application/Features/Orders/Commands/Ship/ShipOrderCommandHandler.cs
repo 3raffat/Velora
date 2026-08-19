@@ -8,18 +8,32 @@ namespace Velora.Application.Features.Orders.Commands.Ship;
 
 public sealed class ShipOrderCommandHandler(
     IVeloraContext _context,
+    IDeliveryClient _deliveryClient,
     ILogger<ShipOrderCommandHandler> _logger
 ) : IRequestHandler<ShipOrderCommand>
 {
     public async Task Handle(ShipOrderCommand request, CancellationToken ct)
     {
-        var order = await _context.Orders.FirstOrDefaultAsync(
-            o => o.Id == request.OrderId && o.CustomerId == request.CustomerId,
-            ct
-        );
+        var order = await _context
+            .Orders.Include(o => o.Customer)
+            .FirstOrDefaultAsync(
+                o => o.Id == request.OrderId && o.CustomerId == request.CustomerId,
+                ct
+            );
 
         if (order is null)
             throw new OrderNotFoundException(request.OrderId);
+
+        var shipment = await _deliveryClient.CreateShipmentAsync(
+            new Common.Models.CreateShipmentRequest(
+                order.Id,
+                order.Customer.FirstName.Value,
+                order.Customer.PhoneNumber.Value,
+                order.ShippingAddress,
+                order.TotalAmount
+            ),
+            ct
+        );
 
         order.Ship();
 

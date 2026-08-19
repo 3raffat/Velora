@@ -17,8 +17,28 @@ public static class DependencyInjection
             .AddCustomApiVersioning()
             .AddCurrentUser()
             .AddExceptionHandling()
-            .AddSwagger();
+            .AddSwagger()
+            .AddCors();
 
+        return services;
+    }
+
+    public static IServiceCollection AddCors(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy(
+                "AllowSpecificOrigin",
+                builder =>
+                {
+                    builder
+                        .WithOrigins("https://localhost:5173", "http://localhost:5173")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                }
+            );
+        });
         return services;
     }
 

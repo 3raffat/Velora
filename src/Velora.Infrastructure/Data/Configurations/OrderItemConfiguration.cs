@@ -17,10 +17,18 @@ public sealed class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 
         builder.Property(oi => oi.Quantity).IsRequired();
 
-        builder
-            .Property(oi => oi.UnitPrice)
-            .HasConversion(order => order.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(oi => oi.UnitPrice)
+        //     .HasConversion(order => order.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.UnitPrice,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
 
         builder.Property(oi => oi.Discount).HasPrecision(18, 2).IsRequired();
 

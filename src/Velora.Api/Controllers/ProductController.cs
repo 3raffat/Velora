@@ -17,9 +17,13 @@ namespace Velora.Api.Controllers;
 public sealed class ProductController(ISender _sender) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetProducts([FromQuery] Guid? categoryId, CancellationToken ct)
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] Guid? categoryId,
+        [FromQuery] string? search,
+        CancellationToken ct
+    )
     {
-        var result = await _sender.Send(new GetProductsQuery(categoryId), ct);
+        var result = await _sender.Send(new GetProductsQuery(categoryId, search), ct);
 
         return Ok(
             new StandardSuccessResponse<object>(

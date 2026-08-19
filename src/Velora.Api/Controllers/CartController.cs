@@ -65,7 +65,7 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
         var user = _currentUser.GetCurrentUserOrSystem();
 
         await _sender.Send(
-            new RemoveCartItemCommand(user.IdentityUserId, cartId, request.ProductId),
+            new RemoveCartItemCommand(user.CustomerId, cartId, request.ProductId),
             ct
         );
 
@@ -83,7 +83,7 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new ClearCartCommand(user.IdentityUserId, cartId), ct);
+        await _sender.Send(new ClearCartCommand(user.CustomerId, cartId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(

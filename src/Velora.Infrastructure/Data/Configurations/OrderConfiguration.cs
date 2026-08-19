@@ -20,10 +20,18 @@ public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.OrderDate).IsRequired();
 
-        builder
-            .Property(o => o.ShippingCost)
-            .HasConversion(cost => cost.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(o => o.ShippingCost)
+        //     .HasConversion(cost => cost.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.ShippingCost,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
 
         builder.Property(o => o.OrderStatus).HasConversion<string>().HasMaxLength(50).IsRequired();
 

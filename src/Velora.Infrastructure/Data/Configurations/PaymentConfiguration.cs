@@ -25,10 +25,18 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(p => p.TransactionId).HasMaxLength(255);
 
-        builder
-            .Property(p => p.Amount)
-            .HasConversion(payment => payment.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(p => p.Amount)
+        //     .HasConversion(payment => payment.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.Amount,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
 
         builder.Property(p => p.PaymentDate).IsRequired();
 

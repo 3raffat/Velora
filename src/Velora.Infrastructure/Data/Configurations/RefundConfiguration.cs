@@ -15,10 +15,18 @@ public sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
 
         builder.Property(ci => ci.Id).ValueGeneratedNever();
 
-        builder
-            .Property(r => r.Amount)
-            .HasConversion(refund => refund.Amount, value => Money.Create(value))
-            .IsRequired();
+        // builder
+        //     .Property(r => r.Amount)
+        //     .HasConversion(refund => refund.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.Amount,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
 
         builder.Property(r => r.Status).HasConversion<string>().HasMaxLength(50).IsRequired();
 

@@ -16,38 +16,70 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.Property(ci => ci.Id).ValueGeneratedNever();
 
-        builder
-            .Property(c => c.FirstName)
-            .HasConversion(
-                firstName => firstName == null ? null : firstName.Value,
-                value => value == null ? null : Name.Create(value)
-            )
-            .HasMaxLength(100);
+        // builder
+        //     .Property(c => c.FirstName)
+        //     .HasConversion(
+        //         firstName => firstName == null ? null : firstName.Value,
+        //         value => value == null ? null : Name.Create(value)
+        //     )
+        //     .HasMaxLength(100);
 
-        builder
-            .Property(c => c.LastName)
-            .HasConversion(
-                lastName => lastName == null ? null : lastName.Value,
-                value => value == null ? null : Name.Create(value)
-            )
-            .HasMaxLength(100);
+        builder.ComplexProperty(
+            p => p.FirstName,
+            name =>
+            {
+                name.Property(n => n.Value).HasMaxLength(100);
+            }
+        );
 
-        builder
-            .Property(c => c.PhoneNumber)
-            .HasConversion(
-                phoneNumber => phoneNumber == null ? null : phoneNumber.Value,
-                value => value == null ? null : PhoneNumber.Create(value)
-            )
-            .HasMaxLength(100);
+        // builder
+        //     .Property(c => c.LastName)
+        //     .HasConversion(
+        //         lastName => lastName == null ? null : lastName.Value,
+        //         value => value == null ? null : Name.Create(value)
+        //     )
+        //     .HasMaxLength(100);
 
-        builder
-            .Property(c => c.Email)
-            .HasConversion(
-                email => email == null ? null : email.Value,
-                value => value == null ? null : Email.Create(value)
-            )
-            .HasColumnName("Email")
-            .HasMaxLength(225);
+        builder.ComplexProperty(
+            p => p.LastName,
+            name =>
+            {
+                name.Property(n => n.Value).HasMaxLength(100);
+            }
+        );
+
+        // builder
+        //     .Property(c => c.PhoneNumber)
+        //     .HasConversion(
+        //         phoneNumber => phoneNumber == null ? null : phoneNumber.Value,
+        //         value => value == null ? null : PhoneNumber.Create(value)
+        //     )
+        //     .HasMaxLength(100);
+
+        builder.ComplexProperty(
+            p => p.PhoneNumber,
+            name =>
+            {
+                name.Property(n => n.Value).HasMaxLength(100);
+            }
+        );
+
+        // builder
+        //     .Property(c => c.Email)
+        //     .HasConversion(
+        //         email => email == null ? null : email.Value,
+        //         value => value == null ? null : Email.Create(value)
+        //     )
+        //     .HasColumnName("Email")
+        //     .HasMaxLength(225);
+
+        builder.ComplexProperty(
+            p => p.Email,
+            name =>
+            {
+                name.Property(n => n.Value).HasColumnName("Email").HasMaxLength(100);
+            }
+        );
 
         builder.Property(c => c.DateOfBirth).IsRequired();
 

@@ -15,11 +15,19 @@ public sealed class FeedBackConfiguration : IEntityTypeConfiguration<Feedback>
 
         builder.Property(ci => ci.Id).ValueGeneratedNever();
 
-        builder
-            .Property(f => f.Rating)
-            .HasConversion(rating => rating.Value, value => Rating.Create(value))
-            .HasColumnName("Rating")
-            .IsRequired();
+        // builder
+        //     .Property(f => f.Rating)
+        //     .HasConversion(rating => rating.Value, value => Rating.Create(value))
+        //     .HasColumnName("Rating")
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.Rating,
+            name =>
+            {
+                name.Property(n => n.Value).HasColumnName("Rating").HasMaxLength(100);
+            }
+        );
 
         builder.Property(f => f.Comment).HasMaxLength(500);
     }

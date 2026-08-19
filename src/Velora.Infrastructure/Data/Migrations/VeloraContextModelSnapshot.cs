@@ -146,9 +146,6 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Discount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime2");
 
@@ -164,6 +161,14 @@ namespace Velora.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Discount", "Velora.Domain.Entities.Coupons.Coupon.Discount#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
 
                     b.HasKey("Id");
 
@@ -235,15 +240,6 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(225)
-                        .HasColumnType("nvarchar(225)")
-                        .HasColumnName("Email");
-
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<Guid>("IdentityUserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -253,19 +249,44 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<bool>("IsProfileCompleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Email", "Velora.Domain.Entities.Customers.Customer.Email#Email", b1 =>
+                        {
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Email");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "FirstName", "Velora.Domain.Entities.Customers.Customer.FirstName#Name", b1 =>
+                        {
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "LastName", "Velora.Domain.Entities.Customers.Customer.LastName#Name", b1 =>
+                        {
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "PhoneNumber", "Velora.Domain.Entities.Customers.Customer.PhoneNumber#PhoneNumber", b1 =>
+                        {
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)");
+                        });
 
                     b.HasKey("Id");
 
@@ -286,9 +307,6 @@ namespace Velora.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("OrderAmount")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
@@ -321,6 +339,14 @@ namespace Velora.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "OrderAmount", "Velora.Domain.Entities.Orders.Cancellation.OrderAmount#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
 
                     b.HasKey("Id");
 
@@ -360,9 +386,6 @@ namespace Velora.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("ShippingCost")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
@@ -450,6 +473,14 @@ namespace Velora.Infrastructure.Data.Migrations
                                 .HasColumnName("ShippingState");
                         });
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "ShippingCost", "Velora.Domain.Entities.Orders.Order.ShippingCost#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -475,8 +506,13 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "UnitPrice", "Velora.Domain.Entities.Orders.OrderItem.UnitPrice#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
 
                     b.HasKey("Id");
 
@@ -491,9 +527,6 @@ namespace Velora.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -527,6 +560,14 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Amount", "Velora.Domain.Entities.Orders.Payment.Amount#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId")
@@ -539,9 +580,6 @@ namespace Velora.Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("CancellationId")
                         .HasColumnType("uniqueidentifier");
@@ -582,6 +620,14 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Amount", "Velora.Domain.Entities.Orders.Refund.Amount#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
+
                     b.HasKey("Id");
 
                     b.HasIndex("CancellationId")
@@ -618,17 +664,22 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("Name");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Name", "Velora.Domain.Entities.Products.Category.Name#Name", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Name");
+                        });
 
                     b.HasKey("Id");
 
@@ -665,15 +716,21 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte>("Rating")
-                        .HasColumnType("tinyint")
-                        .HasColumnName("Rating");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Rating", "Velora.Domain.Entities.Products.Feedback.Rating#Rating", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<byte>("Value")
+                                .HasMaxLength(100)
+                                .HasColumnType("tinyint")
+                                .HasColumnName("Rating");
+                        });
 
                     b.HasKey("Id");
 
@@ -719,12 +776,6 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("Name");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -736,6 +787,17 @@ namespace Velora.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Name", "Velora.Domain.Entities.Products.Product.Name#Name", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Name");
+                        });
 
                     b.HasKey("Id");
 
@@ -799,14 +861,19 @@ namespace Velora.Infrastructure.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "UnitPrice", "Velora.Domain.Entities.ShoppingCart.CartItem.UnitPrice#Money", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)");
+                        });
 
                     b.HasKey("Id");
 

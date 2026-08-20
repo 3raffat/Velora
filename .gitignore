@@ -32,3 +32,6 @@ tests/
 # Build folders
 bin/
 obj/
+
+# Compiled assemblies
+*.dll

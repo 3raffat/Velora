@@ -1,0 +1,47 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using OrderService.Domain.Common.ValueObjects;
+using OrderService.Domain.Entities.Coupons;
+using OrderService.Domain.Entities.Customers;
+
+namespace OrderService.Infrastructure.Data.Configurations;
+
+public sealed class CouponConfiguration : IEntityTypeConfiguration<Coupon>
+{
+    public void Configure(EntityTypeBuilder<Coupon> builder)
+    {
+        builder.ToTable("Coupons", "velora");
+
+        builder.HasKey(c => c.Id);
+
+        builder.Property(c => c.CustomerId).IsRequired();
+
+        builder.Property(c => c.Code).IsRequired().HasMaxLength(50);
+
+        // builder
+        //     .Property(c => c.Discount)
+        //     .HasConversion(discount => discount.Amount, value => Money.Create(value))
+        //     .IsRequired();
+
+        builder.ComplexProperty(
+            p => p.Discount,
+            discount =>
+            {
+                discount.Property(n => n.Amount).IsRequired();
+            }
+        );
+        builder.Property(c => c.Type).HasConversion<string>().IsRequired();
+
+        builder.Property(c => c.ExpiryDate).IsRequired();
+
+        builder.Property(c => c.IsUsed).IsRequired();
+
+        builder.HasIndex(c => c.Code).IsUnique();
+
+        builder
+            .HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(c => c.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

@@ -67,10 +67,7 @@ public sealed class Shipment : AuditableEntity
             throw new RequiredFieldException(nameof(deliveryAddress));
 
         if (totalAmount < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(totalAmount),
-                "Total amount cannot be negative."
-            );
+            throw new InvalidValueException("Total amount cannot be negative.");
 
         var shipment = new Shipment(
             Guid.NewGuid(),
@@ -154,6 +151,39 @@ public sealed class Shipment : AuditableEntity
             );
 
         Status = ShipmentStatus.Cancelled;
+    }
+
+    public void ChangeStatus(ShipmentStatus status, string? failureReason = null)
+    {
+        switch (status)
+        {
+            case ShipmentStatus.PickedUp:
+                PickUp();
+                break;
+            case ShipmentStatus.InTransit:
+                StartTransit();
+                break;
+            case ShipmentStatus.Delivered:
+                MarkDelivered();
+                break;
+            case ShipmentStatus.Failed:
+                MarkFailed(failureReason ?? string.Empty);
+                break;
+            case ShipmentStatus.Pending when Status == ShipmentStatus.Failed:
+            case ShipmentStatus.Assigned when Status == ShipmentStatus.Failed:
+                Retry();
+                break;
+            case ShipmentStatus.Cancelled:
+                Cancel();
+                break;
+            default:
+                throw new InvalidStatusException(
+                    nameof(Shipment),
+                    nameof(ChangeStatus),
+                    Status,
+                    status
+                );
+        }
     }
 
     private void EnsureStatus(string operation, ShipmentStatus expectedStatus)

@@ -1,6 +1,8 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using OrderService.Application.Common.Response;
 using OrderService.Application.Features.Auth.Commands.ConfirmEmail;
 using OrderService.Application.Features.Auth.Commands.Login;
@@ -16,6 +18,10 @@ namespace OrderService.Api.Controllers;
 public sealed class AuthController(ISender _sender) : ControllerBase
 {
     [HttpPost("login")]
+    [EndpointName("Login")]
+    [EndpointSummary("Log in")]
+    [EndpointDescription("Authenticates a customer and returns an access token.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<LoginUserDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Login(UserLoginRequest request, CancellationToken ct)
     {
         var result = await _sender.Send(
@@ -32,6 +38,10 @@ public sealed class AuthController(ISender _sender) : ControllerBase
     }
 
     [HttpPost("register")]
+    [EndpointName("Register")]
+    [EndpointSummary("Register customer")]
+    [EndpointDescription("Creates a customer account and sends an email confirmation request.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status201Created)]
     public async Task<IActionResult> Register(UserRegisterRequest request, CancellationToken ct)
     {
         await _sender.Send(
@@ -50,6 +60,10 @@ public sealed class AuthController(ISender _sender) : ControllerBase
     }
 
     [HttpGet("confirm-email/{userId:guid}")]
+    [EndpointName("ConfirmEmail")]
+    [EndpointSummary("Confirm email")]
+    [EndpointDescription("Confirms a customer email address using the supplied token.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ConfirmEmail(
         [FromRoute] string userId,
         [FromQuery] string token,

@@ -21,8 +21,6 @@ public sealed class RegisterUserCommandValidator : AbstractValidator<RegisterUse
 
         RuleFor(command => command.Role)
             .Must(role => Enum.IsDefined(typeof(UserRole), role))
-            .WithMessage("A valid user role is required.")
-            .Must(role => role is UserRole.User or UserRole.Driver)
-            .WithMessage("Only User and Driver accounts can self-register.");
+            .WithMessage("A valid user role is required.");
     }
 }

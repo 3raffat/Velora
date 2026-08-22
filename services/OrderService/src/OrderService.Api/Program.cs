@@ -8,6 +8,7 @@ using OrderService.Infrastructure.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 builder.Host.UseDefaultServiceProvider(opt =>
 {
     opt.ValidateOnBuild = true;

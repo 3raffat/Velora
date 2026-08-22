@@ -1,7 +1,10 @@
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using OrderService.Api.Contracts;
 using OrderService.Application.Common.Extensions;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Common.Response;
@@ -13,7 +16,6 @@ using OrderService.Application.Features.Addresses.Queries.GetCustomerAddresses;
 using OrderService.Application.Features.Customers.Commands.CompleteCustomerProfile;
 using OrderService.Application.Features.Customers.Queries.GetCustomerById;
 using OrderService.Application.Features.Customers.Queries.GetCustomerProfile;
-using OrderService.Api.Contracts;
 
 namespace OrderService.Api.Controllers;
 
@@ -25,6 +27,10 @@ namespace OrderService.Api.Controllers;
 public class CustomerController(ISender _sender, ICurrentUser _user) : ControllerBase
 {
     [HttpPost("me/complete-profile")]
+    [EndpointName("CompleteCustomerProfile")]
+    [EndpointSummary("Complete customer profile")]
+    [EndpointDescription("Completes the current customer's profile.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status201Created)]
     public async Task<IActionResult> CompleteProfile(
         CompleteCustomerProfileRequest request,
         CancellationToken ct
@@ -54,6 +60,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
     }
 
     [HttpGet("me")]
+    [EndpointName("GetMyCustomerProfile")]
+    [EndpointSummary("Get my profile")]
+    [EndpointDescription("Gets the current customer's profile.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMyProfile(CancellationToken ct)
     {
         var currentUser = _user.GetCurrentUserOrSystem();
@@ -73,6 +83,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
     }
 
     [HttpGet("{id:guid}")]
+    [EndpointName("GetCustomerById")]
+    [EndpointSummary("Get customer by ID")]
+    [EndpointDescription("Gets a customer by their unique identifier.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCustomerById(Guid id, CancellationToken ct)
     {
         var result = await _sender.Send(new GetCustomerByIdQuery(id), ct);
@@ -87,6 +101,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
     }
 
     [HttpGet("addresses")]
+    [EndpointName("GetCustomerAddresses")]
+    [EndpointSummary("Get customer addresses")]
+    [EndpointDescription("Gets the current customer's saved addresses.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCustomerAddresses(CancellationToken ct)
     {
         var currentUser = _user.GetCurrentUserOrSystem();
@@ -103,6 +121,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
     }
 
     [HttpGet("addresses/{addressId:guid}")]
+    [EndpointName("GetAddressById")]
+    [EndpointSummary("Get address by ID")]
+    [EndpointDescription("Gets a saved address by its unique identifier.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAddressById(Guid addressId, CancellationToken ct)
     {
         var user = _user.GetCurrentUserOrSystem();
@@ -120,6 +142,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
 
     [Authorize]
     [HttpPost("addresses")]
+    [EndpointName("AddCustomerAddress")]
+    [EndpointSummary("Add customer address")]
+    [EndpointDescription("Adds a saved address for the current customer.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status201Created)]
     public async Task<IActionResult> AddCustomerAddress(
         CreateAddressRequest request,
         CancellationToken ct
@@ -152,6 +178,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
 
     [Authorize]
     [HttpPut("{addressId:guid}/addresses")]
+    [EndpointName("UpdateCustomerAddress")]
+    [EndpointSummary("Update customer address")]
+    [EndpointDescription("Updates a saved address for the current customer.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateCustomerAddress(
         Guid addressId,
         UpdateAddressRequest request,
@@ -184,6 +214,10 @@ public class CustomerController(ISender _sender, ICurrentUser _user) : Controlle
 
     [Authorize]
     [HttpDelete("{addressId:guid}/addresses")]
+    [EndpointName("DeleteCustomerAddress")]
+    [EndpointSummary("Delete customer address")]
+    [EndpointDescription("Deletes a saved address for the current customer.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteCustomerAddress(Guid addressId, CancellationToken ct)
     {
         var user = _user.GetCurrentUserOrSystem();

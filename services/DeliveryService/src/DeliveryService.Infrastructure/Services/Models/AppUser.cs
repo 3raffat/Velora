@@ -16,6 +16,10 @@ public sealed class AppUser : IdentityUser<Guid>
         EmailConfirmed = true;
     }
 
+    public bool IsActive { get; private set; } = true;
+
+    public void SetActive(bool isActive) => IsActive = isActive;
+
     public static AppUser Create(string username, string email)
     {
         if (string.IsNullOrWhiteSpace(username))

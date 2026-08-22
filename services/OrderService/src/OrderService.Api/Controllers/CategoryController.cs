@@ -2,13 +2,15 @@ using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using OrderService.Api.Contracts;
 using OrderService.Application.Common.Response;
 using OrderService.Application.Features.Categories.Commands.Create;
 using OrderService.Application.Features.Categories.Commands.Update;
 using OrderService.Application.Features.Categories.Queries.GetAllCategories;
 using OrderService.Application.Features.Categories.Queries.GetCategoryById;
-using OrderService.Api.Contracts;
 
 namespace OrderService.Api.Controllers;
 
@@ -19,6 +21,10 @@ namespace OrderService.Api.Controllers;
 public sealed class CategoryController(ISender _sender) : ControllerBase
 {
     [HttpGet]
+    [EndpointName("GetAllCategories")]
+    [EndpointSummary("Get all categories")]
+    [EndpointDescription("Gets all product categories.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         var result = await _sender.Send(new GetAllCategoriesQuery(), ct);
@@ -33,6 +39,10 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [EndpointName("GetCategoryById")]
+    [EndpointSummary("Get category by ID")]
+    [EndpointDescription("Gets a category by its unique identifier.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var result = await _sender.Send(new GetCategoryByIdQuery(id), ct);
@@ -46,8 +56,12 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
         );
     }
 
-    [Authorize]
     [HttpPost]
+    [Authorize]
+    [EndpointName("CreateCategory")]
+    [EndpointSummary("Create category")]
+    [EndpointDescription("Creates a new product category.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(CreateCategoryRequest request, CancellationToken ct)
     {
         var result = await _sender.Send(
@@ -68,6 +82,10 @@ public sealed class CategoryController(ISender _sender) : ControllerBase
 
     [Authorize]
     [HttpPut("{id:guid}")]
+    [EndpointName("UpdateCategory")]
+    [EndpointSummary("Update category")]
+    [EndpointDescription("Updates an existing product category.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(
         Guid id,
         UpdateCategoryRequest request,

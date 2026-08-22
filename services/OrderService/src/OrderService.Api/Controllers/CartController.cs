@@ -1,7 +1,10 @@
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using OrderService.Api.Contracts;
 using OrderService.Application.Common.Extensions;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Common.Response;
@@ -9,7 +12,6 @@ using OrderService.Application.Features.ShoppingCarts.Commands.AddCartItem;
 using OrderService.Application.Features.ShoppingCarts.Commands.ClearCart;
 using OrderService.Application.Features.ShoppingCarts.Commands.RemoveCartItem;
 using OrderService.Application.Features.ShoppingCarts.Queries.GetActiveCart;
-using OrderService.Api.Contracts;
 
 namespace OrderService.Api.Controllers;
 
@@ -21,6 +23,10 @@ namespace OrderService.Api.Controllers;
 public class CartController(ISender _sender, ICurrentUser _currentUser) : ControllerBase
 {
     [HttpGet("my-cart")]
+    [EndpointName("GetMyCart")]
+    [EndpointSummary("Get active cart")]
+    [EndpointDescription("Gets the current customer's active shopping cart.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMyCart(CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();
@@ -37,6 +43,10 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     }
 
     [HttpPost("items")]
+    [EndpointName("AddCartItem")]
+    [EndpointSummary("Add cart item")]
+    [EndpointDescription("Adds a product to the current customer's shopping cart.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> AddCartItem(AddCartItemRequest request, CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();
@@ -56,6 +66,10 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     }
 
     [HttpDelete("{cartId:guid}/items")]
+    [EndpointName("RemoveCartItem")]
+    [EndpointSummary("Remove cart item")]
+    [EndpointDescription("Removes a product from a shopping cart.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemoveCartItem(
         Guid cartId,
         RemoveCartItemRequest request,
@@ -79,6 +93,10 @@ public class CartController(ISender _sender, ICurrentUser _currentUser) : Contro
     }
 
     [HttpPut("{cartId:guid}/clear")]
+    [EndpointName("ClearCart")]
+    [EndpointSummary("Clear cart")]
+    [EndpointDescription("Removes all items from a shopping cart.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ClearCartItem(Guid cartId, CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();

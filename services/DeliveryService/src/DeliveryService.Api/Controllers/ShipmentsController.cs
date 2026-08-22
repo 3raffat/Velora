@@ -9,8 +9,9 @@ using DeliveryService.Application.Features.Shipments.Commands.AssignShipmentDriv
 using DeliveryService.Application.Features.Shipments.Commands.CreateShipment;
 using DeliveryService.Application.Features.Shipments.Commands.UpdateShipmentStatus;
 using DeliveryService.Application.Features.Shipments.Dtos;
+using DeliveryService.Application.Features.Shipments.Queries.GetMyShipments;
 using DeliveryService.Application.Features.Shipments.Queries.GetShipments;
-using DeliveryService.Domain.Common.ValueObjects;
+using DeliveryService.Application.Features.Shipments.Queries.GetShipmentsByOrderId;
 using DeliveryService.Domain.Common.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -26,14 +27,14 @@ public sealed class ShipmentsController(ISender sender, ICurrentUser currentUser
 {
     [HttpPost]
     [AllowAnonymous]
+    [EndpointSummary("Create a shipment")]
+    [EndpointDescription("Creates a new shipment.")]
+    [EndpointName("CreateShipment")]
     [ProducesResponseType(
         typeof(StandardSuccessResponse<CreateShipmentDto>),
         StatusCodes.Status201Created
     )]
-    public async Task<ActionResult<StandardSuccessResponse<CreateShipmentDto>>> Create(
-        CreateShipmentRequest request,
-        CancellationToken ct
-    )
+    public async Task<IActionResult> Create(CreateShipmentRequest request, CancellationToken ct)
     {
         var result = await sender.Send(
             new CreateShipmentCommand(
@@ -63,13 +64,14 @@ public sealed class ShipmentsController(ISender sender, ICurrentUser currentUser
     }
 
     [HttpGet]
+    [EndpointSummary("Get shipments")]
+    [EndpointDescription("Retrieves shipments matching the specified filters.")]
+    [EndpointName("GetShipments")]
     [ProducesResponseType(
         typeof(StandardSuccessResponse<IReadOnlyCollection<ShipmentDto>>),
         StatusCodes.Status200OK
     )]
-    public async Task<
-        ActionResult<StandardSuccessResponse<IReadOnlyCollection<ShipmentDto>>>
-    > GetMany(
+    public async Task<IActionResult> GetMany(
         [FromQuery] Guid? orderId,
         [FromQuery] string? trackingNumber,
         [FromQuery] Guid? driverId,
@@ -90,21 +92,44 @@ public sealed class ShipmentsController(ISender sender, ICurrentUser currentUser
         );
     }
 
+    [HttpGet("order/{orderId:guid}")]
+    [AllowAnonymous]
+    [EndpointSummary("Get shipments by order")]
+    [EndpointDescription("Retrieves all shipments belonging to an order.")]
+    [EndpointName("GetShipmentsByOrderId")]
+    [ProducesResponseType(
+        typeof(StandardSuccessResponse<ShipmentTrackingDto>),
+        StatusCodes.Status200OK
+    )]
+    public async Task<IActionResult> GetByOrderId(Guid orderId, CancellationToken ct)
+    {
+        var result = await sender.Send(new GetShipmentsByOrderIdQuery(orderId), ct);
+
+        return Ok(
+            new StandardSuccessResponse<ShipmentTrackingDto>(
+                result,
+                StatusCodes.Status200OK,
+                "Shipments retrieved successfully."
+            )
+        );
+    }
+
     [HttpGet("mine")]
     [Authorize(Roles = nameof(UserRole.Driver))]
+    [EndpointSummary("Get my shipments")]
+    [EndpointDescription("Retrieves shipments assigned to the authenticated driver.")]
+    [EndpointName("GetMyShipments")]
     [ProducesResponseType(
         typeof(StandardSuccessResponse<IReadOnlyCollection<ShipmentDto>>),
         StatusCodes.Status200OK
     )]
-    public async Task<
-        ActionResult<StandardSuccessResponse<IReadOnlyCollection<ShipmentDto>>>
-    > GetMine(CancellationToken ct)
+    public async Task<IActionResult> GetMyShipments(CancellationToken ct)
     {
         var driverId =
             currentUser.GetUserId()
             ?? throw new UnauthorizedException("Authenticated driver identity is required.");
 
-        var result = await sender.Send(new GetShipmentsQuery(DriverId: driverId), ct);
+        var result = await sender.Send(new GetMyShipmentsQuery(driverId), ct);
 
         return Ok(
             new StandardSuccessResponse<IReadOnlyCollection<ShipmentDto>>(
@@ -116,13 +141,14 @@ public sealed class ShipmentsController(ISender sender, ICurrentUser currentUser
     }
 
     [HttpGet("{shipmentId:guid}/attempts")]
+    [EndpointSummary("Get delivery attempts")]
+    [EndpointDescription("Retrieves delivery attempts for a shipment.")]
+    [EndpointName("GetDeliveryAttempts")]
     [ProducesResponseType(
         typeof(StandardSuccessResponse<IReadOnlyCollection<DeliveryAttemptDto>>),
         StatusCodes.Status200OK
     )]
-    public async Task<
-        ActionResult<StandardSuccessResponse<IReadOnlyCollection<DeliveryAttemptDto>>>
-    > GetAttempts(Guid shipmentId, CancellationToken ct)
+    public async Task<IActionResult> GetAttempts(Guid shipmentId, CancellationToken ct)
     {
         var result = await sender.Send(new GetDeliveryAttemptsQuery(shipmentId), ct);
 
@@ -137,8 +163,11 @@ public sealed class ShipmentsController(ISender sender, ICurrentUser currentUser
 
     [HttpPatch("{shipmentId:guid}/driver")]
     [Authorize(Roles = nameof(UserRole.Dispatcher) + "," + nameof(UserRole.DeliveryAdmin))]
+    [EndpointSummary("Assign a shipment driver")]
+    [EndpointDescription("Assigns a driver to a shipment.")]
+    [EndpointName("AssignShipmentDriver")]
     [ProducesResponseType(typeof(StandardSuccessResponse<ShipmentDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<StandardSuccessResponse<ShipmentDto>>> AssignDriver(
+    public async Task<IActionResult> AssignDriver(
         Guid shipmentId,
         AssignShipmentDriverRequest request,
         CancellationToken ct
@@ -159,15 +188,28 @@ public sealed class ShipmentsController(ISender sender, ICurrentUser currentUser
     }
 
     [HttpPatch("{shipmentId:guid}/status")]
+    [Authorize(Roles = nameof(UserRole.Driver))]
+    [EndpointSummary("Update shipment status")]
+    [EndpointDescription("Updates the status of a shipment.")]
+    [EndpointName("UpdateShipmentStatus")]
     [ProducesResponseType(typeof(StandardSuccessResponse<ShipmentDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<StandardSuccessResponse<ShipmentDto>>> ChangeStatus(
+    public async Task<IActionResult> ChangeStatus(
         Guid shipmentId,
         UpdateShipmentStatusRequest request,
         CancellationToken ct
     )
     {
+        var driverId =
+            currentUser.GetUserId()
+            ?? throw new UnauthorizedException("Authenticated driver identity is required.");
+
         var result = await sender.Send(
-            new UpdateShipmentStatusCommand(shipmentId, request.Status, request.FailureReason),
+            new UpdateShipmentStatusCommand(
+                shipmentId,
+                driverId,
+                request.Status,
+                request.FailureReason
+            ),
             ct
         );
 

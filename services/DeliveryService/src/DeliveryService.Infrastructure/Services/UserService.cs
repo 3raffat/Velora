@@ -3,6 +3,7 @@ using DeliveryService.Application.Common.Exceptions;
 using DeliveryService.Application.Common.Interfaces;
 using DeliveryService.Infrastructure.Services.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryService.Infrastructure.Services;
 
@@ -65,6 +66,9 @@ public sealed class UserService(UserManager<AppUser> userManager, ITokenProvider
         if (!user.EmailConfirmed)
             throw new UnauthorizedException("Email address is not confirmed.");
 
+        if (!user.IsActive)
+            throw new UnauthorizedException("User account is inactive.");
+
         return await CreateAuthResponseAsync(user);
     }
 
@@ -81,13 +85,55 @@ public sealed class UserService(UserManager<AppUser> userManager, ITokenProvider
             return null;
 
         var roles = await userManager.GetRolesAsync(user);
-        return new UserSummary(user.Id, user.UserName, user.Email, roles);
+        return new UserSummary(user.Id, user.UserName, user.Email, roles, user.IsActive);
+    }
+
+    public async Task<IReadOnlyCollection<UserSummary>> GetUsersAsync(
+        UserRole? role = null,
+        CancellationToken ct = default
+    )
+    {
+        var users = role.HasValue
+            ? (await userManager.GetUsersInRoleAsync(role.Value.ToString()))
+                .OrderBy(user => user.UserName)
+                .ToList()
+            : await userManager.Users.AsNoTracking().OrderBy(user => user.UserName).ToListAsync(ct);
+        var summaries = new List<UserSummary>(users.Count);
+
+        foreach (var user in users)
+        {
+            ct.ThrowIfCancellationRequested();
+            var roles = await userManager.GetRolesAsync(user);
+            summaries.Add(
+                new UserSummary(user.Id, user.UserName, user.Email, roles, user.IsActive)
+            );
+        }
+
+        return summaries;
+    }
+
+    public async Task<UserSummary> SetActiveAsync(
+        Guid userId,
+        bool isActive,
+        CancellationToken ct = default
+    )
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+            throw new NotFoundException("User was not found.");
+
+        user.SetActive(isActive);
+        var result = await userManager.UpdateAsync(user);
+        EnsureSucceeded(result);
+
+        var roles = await userManager.GetRolesAsync(user);
+        return new UserSummary(user.Id, user.UserName, user.Email, roles, user.IsActive);
     }
 
     private async Task<AuthResponse> CreateAuthResponseAsync(AppUser user)
     {
         var roles = await userManager.GetRolesAsync(user);
-        var summary = new UserSummary(user.Id, user.UserName, user.Email, roles);
+        var summary = new UserSummary(user.Id, user.UserName, user.Email, roles, user.IsActive);
         var token = tokenProvider.GenerateToken(
             new UserTokenData(summary.Id, summary.Email, summary.Roles)
         );

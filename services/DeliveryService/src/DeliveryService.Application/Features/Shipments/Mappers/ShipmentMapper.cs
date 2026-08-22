@@ -12,6 +12,20 @@ public static class ShipmentMapper
     public static IReadOnlyCollection<ShipmentDto> ToDto(this IEnumerable<Shipment> shipments) =>
         shipments.Select(shipment => shipment.ToDto()).ToArray();
 
+    public static IReadOnlyCollection<ShipmentTrackingDto> ToTrackingDto(
+        this IEnumerable<Shipment> shipments
+    ) => shipments.Select(shipment => shipment.ToTrackingDto()).ToArray();
+
+    public static ShipmentTrackingDto ToTrackingDto(this Shipment shipment) =>
+        new(
+            shipment.OrderId,
+            shipment.TrackingNumber.Value,
+            shipment.Status,
+            shipment.PickedUpAt,
+            shipment.DeliveredAt,
+            shipment.FailureReason
+        );
+
     public static ShipmentDto ToDto(this Shipment shipment) =>
         new(
             shipment.Id,

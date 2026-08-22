@@ -6,6 +6,7 @@ namespace DeliveryService.Application.Features.Shipments.Commands.UpdateShipment
 
 public sealed record UpdateShipmentStatusCommand(
     Guid ShipmentId,
+    Guid DriverId,
     ShipmentStatus Status,
     string? FailureReason = null
 ) : IRequest<ShipmentDto>;

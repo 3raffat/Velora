@@ -43,10 +43,12 @@ public sealed class TokenProvider(IConfiguration _configuration, IVeloraContext 
             // new Claim(JwtRegisteredClaimNames.Email, user.UserEmail),
         };
 
-        foreach (var role in user.Roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+        var roles = user.Roles.Where(role => !string.IsNullOrWhiteSpace(role)).Distinct().ToList();
+
+        if (roles.Count == 0)
+            throw new InvalidOperationException("The authenticated user has no assigned roles.");
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var descriptor = new SecurityTokenDescriptor
         {

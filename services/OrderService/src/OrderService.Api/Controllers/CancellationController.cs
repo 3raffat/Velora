@@ -1,7 +1,9 @@
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using OrderService.Api.Contracts;
 using OrderService.Application.Common.Extensions;
 using OrderService.Application.Common.Interfaces;
@@ -22,6 +24,10 @@ public sealed class CancellationController(ISender _sender, ICurrentUser _curren
     : ControllerBase
 {
     [HttpGet("{orderId:guid}/cancellation")]
+    [EndpointName("GetCancellation")]
+    [EndpointSummary("Get cancellation")]
+    [EndpointDescription("Gets the cancellation for an order.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCancellation(Guid orderId, CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();
@@ -41,6 +47,10 @@ public sealed class CancellationController(ISender _sender, ICurrentUser _curren
     }
 
     [HttpPut("{orderId:guid}/cancellation/approve")]
+    [EndpointName("ApproveCancellation")]
+    [EndpointSummary("Approve cancellation")]
+    [EndpointDescription("Approves an order cancellation request.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ApproveCancellation(
         Guid orderId,
         ApproveCancellationRequest request,
@@ -64,6 +74,10 @@ public sealed class CancellationController(ISender _sender, ICurrentUser _curren
     }
 
     [HttpPut("{orderId:guid}/cancellation/reject")]
+    [EndpointName("RejectCancellation")]
+    [EndpointSummary("Reject cancellation")]
+    [EndpointDescription("Rejects an order cancellation request.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> RejectCancellation(
         Guid orderId,
         RejectCancellationRequest request,
@@ -87,6 +101,10 @@ public sealed class CancellationController(ISender _sender, ICurrentUser _curren
     }
 
     [HttpPost("{orderId:guid}/cancellation/request")]
+    [EndpointName("RequestCancellation")]
+    [EndpointSummary("Request cancellation")]
+    [EndpointDescription("Submits a cancellation request for an order.")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> RequestCancellation(
         Guid orderId,
         RequestCancellationRequest request,

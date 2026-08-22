@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -131,6 +132,7 @@ public static class DependencyInjection
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
                     ),
+                    RoleClaimType = ClaimTypes.Role,
                 };
             });
         return services;

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using OrderService.Application.Common.Exceptions;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Common.Models;
 using OrderService.Application.Common.Response;
@@ -36,5 +37,17 @@ public sealed class DeliveryClient(HttpClient _httpClient) : IDeliveryClient
             ?? throw new InvalidOperationException(
                 "Delivery service returned an empty response payload."
             );
+    }
+
+    public async Task<ShipmentTrackingResponse> GetShipmentByOrderIdAsync(
+        Guid orderId,
+        CancellationToken ct = default
+    )
+    {
+        var response = await _httpClient.GetFromJsonAsync<
+            StandardSuccessResponse<ShipmentTrackingResponse>
+        >($"api/v1/shipments/order/{orderId}", ct);
+
+        return response?.Data ?? throw new ShipmentNotFoundException(orderId);
     }
 }

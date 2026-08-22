@@ -8,4 +8,9 @@ public interface IDeliveryClient
         CreateShipmentRequest request,
         CancellationToken ct = default
     );
+
+    Task<ShipmentTrackingResponse> GetShipmentByOrderIdAsync(
+        Guid orderId,
+        CancellationToken ct = default
+    );
 }

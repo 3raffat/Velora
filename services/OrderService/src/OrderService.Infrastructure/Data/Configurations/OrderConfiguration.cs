@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PhoneNumbers;
 using OrderService.Domain.Common.ValueObjects;
 using OrderService.Domain.Entities.Orders;
+using PhoneNumbers;
 
 namespace OrderService.Infrastructure.Data.Configurations;
 

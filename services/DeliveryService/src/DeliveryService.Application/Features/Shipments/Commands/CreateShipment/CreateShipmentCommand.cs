@@ -1,16 +1,13 @@
 using DeliveryService.Application.Features.Shipments.Dtos;
+using DeliveryService.Domain.Common.ValueObjects;
 using MediatR;
 
 namespace DeliveryService.Application.Features.Shipments.Commands.CreateShipment;
 
 public sealed record CreateShipmentCommand(
     Guid OrderId,
-    string RecipientName,
-    string RecipientPhone,
-    string AddressLine1,
-    string? AddressLine2,
-    string City,
-    string State,
-    string Country,
+    string CustomerName,
+    string CustomerPhone,
+    AddressSnapshot ShippingAddress,
     decimal TotalAmount
 ) : IRequest<CreateShipmentDto>;

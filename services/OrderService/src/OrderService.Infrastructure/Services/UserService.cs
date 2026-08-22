@@ -66,7 +66,7 @@ public sealed class UserService(
 
         var tokenResult = await _token.GenerateJwtTokenAsync(customer.CustomerId, userInfo, ct);
 
-        return new LoginUserDto(email, tokenResult);
+        return new LoginUserDto(email, userInfo.Roles, tokenResult);
     }
 
     public async Task<RegisterUserDto> RegisterAsync(
@@ -96,13 +96,13 @@ public sealed class UserService(
 
             throw new InvalidOperationException(errors);
         }
-        // var addToRoleResult = await _manager.AddToRoleAsync(newUser, "User");
+        var addToRoleResult = await _manager.AddToRoleAsync(newUser, nameof(UserRole.User));
 
-        // if (!addToRoleResult.Succeeded)
-        // {
-        //     await _manager.DeleteAsync(newUser);
-        //     throw new InvalidOperationException("Failed to assign role to user. Please try again.");
-        // }
+        if (!addToRoleResult.Succeeded)
+        {
+            await _manager.DeleteAsync(newUser);
+            throw new InvalidOperationException("Failed to assign role to user. Please try again.");
+        }
 
         _logger.LogInformation("User with email {Email} successfully registered.", email);
 

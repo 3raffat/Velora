@@ -1,7 +1,8 @@
 using Hangfire;
-using OrderService.Application;
 using OrderService.Api;
+using OrderService.Application;
 using OrderService.Infrastructure;
+using OrderService.Infrastructure.Data;
 using OrderService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,11 @@ builder
     .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await IdentitySeeder.SeedAsync(scope.ServiceProvider, app.Configuration);
+}
 
 if (app.Environment.IsDevelopment())
 {

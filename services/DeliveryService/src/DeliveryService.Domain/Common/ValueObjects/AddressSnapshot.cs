@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using DeliveryService.Domain.Common.Exceptions;
 
 namespace DeliveryService.Domain.Common.ValueObjects;
@@ -10,7 +11,8 @@ public sealed record AddressSnapshot
     public string State { get; }
     public string Country { get; }
 
-    private AddressSnapshot(
+    [JsonConstructor]
+    public AddressSnapshot(
         string addressLine1,
         string? addressLine2,
         string city,
@@ -18,11 +20,11 @@ public sealed record AddressSnapshot
         string country
     )
     {
-        AddressLine1 = addressLine1;
-        AddressLine2 = addressLine2;
-        City = city;
-        State = state;
-        Country = country;
+        AddressLine1 = Required(addressLine1, nameof(addressLine1));
+        AddressLine2 = string.IsNullOrWhiteSpace(addressLine2) ? null : addressLine2.Trim();
+        City = Required(city, nameof(city));
+        State = Required(state, nameof(state));
+        Country = Required(country, nameof(country));
     }
 
     public static AddressSnapshot Create(
@@ -33,13 +35,7 @@ public sealed record AddressSnapshot
         string country
     )
     {
-        return new AddressSnapshot(
-            Required(addressLine1, nameof(addressLine1)),
-            string.IsNullOrWhiteSpace(addressLine2) ? null : addressLine2.Trim(),
-            Required(city, nameof(city)),
-            Required(state, nameof(state)),
-            Required(country, nameof(country))
-        );
+        return new AddressSnapshot(addressLine1, addressLine2, city, state, country);
     }
 
     private static string Required(string value, string fieldName)

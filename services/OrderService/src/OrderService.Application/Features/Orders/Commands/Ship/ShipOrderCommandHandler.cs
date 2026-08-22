@@ -16,10 +16,7 @@ public sealed class ShipOrderCommandHandler(
     {
         var order = await _context
             .Orders.Include(o => o.Customer)
-            .FirstOrDefaultAsync(
-                o => o.Id == request.OrderId && o.CustomerId == request.CustomerId,
-                ct
-            );
+            .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
 
         if (order is null)
             throw new OrderNotFoundException(request.OrderId);
@@ -39,10 +36,6 @@ public sealed class ShipOrderCommandHandler(
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation(
-            "Order {OrderId} shipped for customer {CustomerId}",
-            order.Id,
-            request.CustomerId
-        );
+        _logger.LogInformation("Order {OrderId} shipped", order.Id);
     }
 }

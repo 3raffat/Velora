@@ -35,3 +35,13 @@ obj/
 
 # Compiled assemblies
 *.dll
+# Node / Frontend build artifacts
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env.local
+/Frontend
+
+frontend-production-prompt.txt

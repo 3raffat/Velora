@@ -44,7 +44,7 @@ public sealed class InfrastructureSeeder(
                 );
         }
 
-        if (!await userManager.IsInRoleAsync(driver, "Driver"))
-            await userManager.AddToRoleAsync(driver, "Driver");
+        if (!await userManager.IsInRoleAsync(driver, nameof(UserRole.DeliveryAdmin)))
+            await userManager.AddToRoleAsync(driver, nameof(UserRole.DeliveryAdmin));
     }
 }

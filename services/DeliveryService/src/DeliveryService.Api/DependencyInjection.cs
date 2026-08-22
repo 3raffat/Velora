@@ -14,10 +14,26 @@ public static class DependencyInjection
     {
         services
             .AddJsonOptions()
+            .AddCorsPolicy()
             .AddCurrentUser()
             .AddExceptionHandling()
             .AddCustomApiVersioning()
             .AddSwagger();
+
+        return services;
+    }
+
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
 
         return services;
     }

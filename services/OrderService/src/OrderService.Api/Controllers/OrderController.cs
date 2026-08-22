@@ -6,12 +6,13 @@ using OrderService.Api.Contracts;
 using OrderService.Application.Common.Extensions;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Common.Response;
-using OrderService.Application.Features.Orders.Commands.Confirm;
 using OrderService.Application.Features.Orders.Commands.Deliver;
 using OrderService.Application.Features.Orders.Commands.Ship;
+using OrderService.Application.Features.Orders.Queries.GetAllOrders;
 using OrderService.Application.Features.Orders.Queries.GetCustomerOrders;
 using OrderService.Application.Features.Orders.Queries.GetOrderById;
 using OrderService.Application.Features.ShoppingCarts.Commands.Checkout;
+using OrderService.Infrastructure.Services.Models;
 
 namespace OrderService.Api.Controllers;
 
@@ -23,6 +24,7 @@ namespace OrderService.Api.Controllers;
 public class OrderController(ISender _sender, ICurrentUser _currentUser) : ControllerBase
 {
     [HttpPost("checkout")]
+    [Authorize(Roles = nameof(UserRole.User))]
     public async Task<IActionResult> Checkout(CheckoutRequest request, CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();
@@ -68,6 +70,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     }
 
     [HttpGet]
+    [Authorize(Roles = nameof(UserRole.User))]
     public async Task<IActionResult> GetCustomerOrders(CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();
@@ -83,28 +86,26 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
         );
     }
 
-    [HttpPut("{orderId:guid}/confirm")]
-    public async Task<IActionResult> ConfirmOrder(Guid orderId, CancellationToken ct)
+    [HttpGet("all")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
+    public async Task<IActionResult> GetAllOrders(CancellationToken ct)
     {
-        var user = _currentUser.GetCurrentUserOrSystem();
-
-        await _sender.Send(new ConfirmOrderCommand(user.IdentityUserId, orderId), ct);
+        var orders = await _sender.Send(new GetAllOrdersQuery(), ct);
 
         return Ok(
-            new StandardSuccessResponse<object?>(
-                default,
+            new StandardSuccessResponse<object>(
+                orders,
                 StatusCodes.Status200OK,
-                "Order confirmed successfully"
+                "Orders retrieved successfully"
             )
         );
     }
 
     [HttpPut("{orderId:guid}/ship")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
     public async Task<IActionResult> ShipOrder(Guid orderId, CancellationToken ct)
     {
-        var user = _currentUser.GetCurrentUserOrSystem();
-
-        await _sender.Send(new ShipOrderCommand(user.CustomerId, orderId), ct);
+        await _sender.Send(new ShipOrderCommand(orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(
@@ -116,6 +117,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     }
 
     [HttpPut("{orderId:guid}/deliver")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
     public async Task<IActionResult> DeliverOrder(Guid orderId, CancellationToken ct)
     {
         var user = _currentUser.GetCurrentUserOrSystem();

@@ -14,20 +14,16 @@ public sealed class CreateShipmentCommandHandler(IDeliveryContext context)
     {
         var shipment = Shipment.Create(
             request.OrderId,
-            request.RecipientName,
-            request.RecipientPhone,
-            AddressSnapshot.Create(
-                request.AddressLine1,
-                request.AddressLine2,
-                request.City,
-                request.State,
-                request.Country
-            ),
+            request.CustomerName,
+            request.CustomerPhone,
+            request.ShippingAddress,
             request.TotalAmount
         );
 
         context.Shipments.Add(shipment);
+
         await context.SaveChangesAsync(ct);
+
         return shipment.ToCreateDto();
     }
 }

@@ -24,6 +24,11 @@ public sealed class GetShipmentsQueryHandler(IDeliveryContext context)
                 shipment.TrackingNumber.Value == request.TrackingNumber
             );
 
+        if (request.DriverId.HasValue)
+        {
+            query = query.Where(shipment => shipment.DriverId == request.DriverId.Value);
+        }
+
         var shipments = await query
             .OrderByDescending(shipment => shipment.CreatedAt)
             .ToListAsync(ct);

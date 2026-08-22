@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
-using OrderService.Application.Common.Interfaces;
 using OrderService.Api.Middleware;
 using OrderService.Api.Services;
+using OrderService.Application.Common.Interfaces;
 
 namespace OrderService.Api;
 
@@ -32,7 +32,14 @@ public static class DependencyInjection
                 builder =>
                 {
                     builder
-                        .WithOrigins("https://localhost:5173", "http://localhost:5173")
+                        .WithOrigins(
+                            "http://localhost:3000",
+                            "https://localhost:3000",
+                            "http://localhost:3400",
+                            "https://localhost:3400",
+                            "http://localhost::5165",
+                            "https://localhost::5165"
+                        )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();

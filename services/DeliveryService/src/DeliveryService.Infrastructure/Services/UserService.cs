@@ -29,7 +29,7 @@ public sealed class UserService(UserManager<AppUser> userManager, ITokenProvider
         if (!Enum.IsDefined(typeof(UserRole), role))
             throw new InvalidRequestException("The selected role is invalid.");
 
-        if (role is UserRole.Dispatcher or UserRole.DeliveryAdmin)
+        if (role is UserRole.DeliveryAdmin)
             throw new UnauthorizedException("Privileged accounts cannot be self-registered.");
 
         if (await userManager.FindByNameAsync(username) is not null)

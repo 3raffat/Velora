@@ -7,7 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
-builder.Services.AddApplication().AddInfrastructure(builder.Configuration).AddPresentation();
+builder
+    .Services.AddApplication(builder.Configuration["OrderService:BaseUrl"]!)
+    .AddInfrastructure(builder.Configuration)
+    .AddPresentation();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

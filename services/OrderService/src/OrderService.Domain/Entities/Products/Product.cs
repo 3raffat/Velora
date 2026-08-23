@@ -79,13 +79,7 @@ public class Product : SoftDeletableEntity
         );
     }
 
-    public void Update(
-        Name name,
-        string description,
-        Money price,
-        string? imageUrl,
-        Guid categoryId
-    )
+    public void Update(Name name, string description, string? imageUrl, Guid categoryId)
     {
         if (string.IsNullOrWhiteSpace(description))
             throw new InvalidDescriptionException();
@@ -98,7 +92,6 @@ public class Product : SoftDeletableEntity
 
         Name = name;
         Description = description;
-        Price = price;
         ImageUrl = imageUrl;
         CategoryId = categoryId;
     }

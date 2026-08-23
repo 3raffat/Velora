@@ -68,4 +68,20 @@ public sealed class Payment : AuditableEntity
 
         Status = PaymentStatus.Refunded;
     }
+
+    public void MarkAsCompleted()
+    {
+        if (PaymentMethod != PaymentMethod.CashOnDelivery)
+            throw new InvalidOperationException(
+                "Only cash on delivery payments can be completed this way."
+            );
+
+        if (Status != PaymentStatus.Pending)
+            throw new InvalidOperationException(
+                "Only a pending cash on delivery payment can be completed."
+            );
+
+        Status = PaymentStatus.Completed;
+        PaymentDate = DateTime.UtcNow;
+    }
 }

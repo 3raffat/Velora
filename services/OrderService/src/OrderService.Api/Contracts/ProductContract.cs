@@ -14,7 +14,6 @@ public sealed record CreateProductRequest(
 public sealed record UpdateProductRequest(
     string Name,
     string Description,
-    decimal Price,
     string? ImageUrl,
     Guid CategoryId
 );

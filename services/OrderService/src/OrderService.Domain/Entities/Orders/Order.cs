@@ -183,6 +183,11 @@ public sealed class Order : AuditableEntity
             );
 
         OrderStatus = OrderStatus.Delivered;
+
+        if (Payment?.PaymentMethod == PaymentMethod.CashOnDelivery)
+        {
+            Payment.MarkAsCompleted();
+        }
     }
 
     public void Cancel()

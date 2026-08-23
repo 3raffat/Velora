@@ -34,7 +34,6 @@ public sealed class UpdateProductCommandHandler(
         product.Update(
             Name.Create(request.Name),
             request.Description,
-            Money.Create(request.Price),
             request.ImageUrl,
             request.CategoryId
         );

@@ -9,6 +9,7 @@ public sealed class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
     public void Configure(EntityTypeBuilder<Shipment> builder)
     {
         builder.HasKey(x => x.Id);
+
         builder.Property(x => x.RecipientName).HasMaxLength(200).IsRequired();
         builder.Property(x => x.RecipientPhone).HasMaxLength(50).IsRequired();
         builder.Property(x => x.TotalAmount).HasPrecision(18, 2);
@@ -43,5 +44,7 @@ public sealed class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
             .WithOne()
             .HasForeignKey(x => x.ShipmentId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.DeliveryAttempts).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

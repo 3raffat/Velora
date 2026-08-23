@@ -78,10 +78,6 @@ public sealed class Shipment : AuditableEntity
             totalAmount
         );
 
-        shipment.AddDomainEvent(
-            new ShipmentCreatedEvent(shipment.Id, shipment.OrderId, shipment.TrackingNumber.Value)
-        );
-
         return shipment;
     }
 
@@ -130,13 +126,21 @@ public sealed class Shipment : AuditableEntity
 
         FailureReason = reason.Trim();
         Status = ShipmentStatus.Failed;
-        _deliveryAttempts.Add(DeliveryAttempt.Create(Id, FailureReason));
+        _deliveryAttempts.Add(DeliveryAttempt.Create(Id, DriverId!.Value, FailureReason));
     }
 
     public void Retry()
     {
         EnsureStatus(nameof(Retry), ShipmentStatus.Failed);
         FailureReason = null;
+
+        var attemptsByCurrentDriver = DriverId.HasValue
+            ? _deliveryAttempts.Count(attempt => attempt.DriverId == DriverId.Value)
+            : 0;
+
+        if (attemptsByCurrentDriver >= 3)
+            DriverId = null;
+
         Status = DriverId.HasValue ? ShipmentStatus.Assigned : ShipmentStatus.Pending;
     }
 

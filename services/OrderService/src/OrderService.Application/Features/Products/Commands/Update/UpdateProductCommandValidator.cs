@@ -17,8 +17,6 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
             .WithMessage("Description is required.")
             .MaximumLength(500);
 
-        RuleFor(x => x.Price).GreaterThan(0).WithMessage("Price must be greater than zero.");
-
         RuleFor(x => x.ImageUrl)
             .NotEmpty()
             .WithMessage("Image URL is required.")

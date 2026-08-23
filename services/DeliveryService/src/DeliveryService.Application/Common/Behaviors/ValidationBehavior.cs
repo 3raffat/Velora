@@ -4,9 +4,8 @@ using MediatR;
 
 namespace DeliveryService.Application.Common.Behaviors;
 
-public sealed class ValidationBehavior<TRequest, TResponse>(
-    IEnumerable<IValidator<TRequest>> validators
-) : IPipelineBehavior<TRequest, TResponse>
+public sealed class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? _validator = null)
+    : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     public async Task<TResponse> Handle(
@@ -15,21 +14,16 @@ public sealed class ValidationBehavior<TRequest, TResponse>(
         CancellationToken ct
     )
     {
-        if (!validators.Any())
-            return await next();
+        if (_validator is null)
+            return await next(ct);
 
-        var context = new ValidationContext<TRequest>(request);
-        var results = await Task.WhenAll(
-            validators.Select(validator => validator.ValidateAsync(context, ct))
+        var validationResult = await _validator.ValidateAsync(request, ct);
+
+        if (validationResult.IsValid)
+            return await next(ct);
+
+        throw new DeliveryService.Application.Common.Exceptions.ValidationException(
+            validationResult.Errors
         );
-        var failures = results
-            .SelectMany(result => result.Errors)
-            .Where(failure => failure is not null)
-            .ToList();
-
-        if (failures.Count > 0)
-            throw new DeliveryService.Application.Common.Exceptions.ValidationException(failures);
-
-        return await next();
     }
 }

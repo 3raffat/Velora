@@ -9,7 +9,15 @@ public sealed class DeliveryAttemptConfiguration : IEntityTypeConfiguration<Deli
     public void Configure(EntityTypeBuilder<DeliveryAttempt> builder)
     {
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
+
+        builder.Property(x => x.DriverId).IsRequired();
         builder.Property(x => x.FailureReason).HasMaxLength(1000).IsRequired();
-        builder.HasIndex(x => new { x.ShipmentId, x.AttemptedAt });
+        builder.HasIndex(x => new
+        {
+            x.ShipmentId,
+            x.DriverId,
+            x.AttemptedAt,
+        });
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OrderService.Application.Common.Behaviors;
 using OrderService.Application.Common.Integrations.Delivery;
+using OrderService.Application.Common.Integrations.PayPal;
 using OrderService.Application.Common.Interfaces;
 
 namespace OrderService.Application;
@@ -19,7 +20,22 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        services.AddMediataR().AddDeliveryIntegration(cfg);
+        services.AddMediataR().AddDeliveryIntegration(cfg).AddPayPalIntegration(cfg);
+
+        return services;
+    }
+
+    public static IServiceCollection AddPayPalIntegration(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddHttpClient<IPayPalClient, PayPalClient>(client =>
+        {
+            client.BaseAddress = new Uri(
+                configuration["PayPal:BaseUrl"] ?? "https://api-m.sandbox.paypal.com"
+            );
+        });
 
         return services;
     }

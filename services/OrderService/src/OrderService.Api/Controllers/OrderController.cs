@@ -9,6 +9,7 @@ using OrderService.Application.Common.Extensions;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Common.Models;
 using OrderService.Application.Common.Response;
+using OrderService.Application.Features.Orders.Commands.AuthorizePayPalPayment;
 using OrderService.Application.Features.Orders.Commands.Deliver;
 using OrderService.Application.Features.Orders.Commands.Ship;
 using OrderService.Application.Features.Orders.Queries.GetAllOrders;
@@ -60,6 +61,32 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
         );
     }
 
+    [HttpPost("{orderId:guid}/payments/paypal/authorize")]
+    [Authorize]
+    [EndpointName("AuthorizePayPalPayment")]
+    [EndpointSummary("Authorize PayPal payment")]
+    public async Task<IActionResult> AuthorizePayPalPayment(
+        Guid orderId,
+        AuthorizePayPalPaymentRequest request,
+        CancellationToken ct
+    )
+    {
+        var user = _currentUser.GetCurrentUserOrSystem();
+
+        await _sender.Send(
+            new AuthorizePayPalPaymentCommand(user.CustomerId, orderId, request.PayPalOrderId),
+            ct
+        );
+
+        return Ok(
+            new StandardSuccessResponse<object?>(
+                default,
+                StatusCodes.Status200OK,
+                "PayPal payment authorized successfully"
+            )
+        );
+    }
+
     [HttpGet("{orderId:guid}")]
     [EndpointName("GetOrderById")]
     [EndpointSummary("Get order by ID")]
@@ -103,7 +130,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     }
 
     [HttpGet]
-    [Authorize(Roles = nameof(UserRole.User))]
+    [Authorize(Roles = nameof(UserRole.User) + "," + nameof(UserRole.Admin))]
     [EndpointName("GetCustomerOrders")]
     [EndpointSummary("Get customer orders")]
     [EndpointDescription("Gets orders belonging to the current customer.")]

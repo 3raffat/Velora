@@ -111,7 +111,6 @@ public sealed class ProductController(ISender _sender) : ControllerBase
                 id,
                 request.Name,
                 request.Description,
-                request.Price,
                 request.ImageUrl,
                 request.CategoryId
             ),

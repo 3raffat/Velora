@@ -163,7 +163,6 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     }
 
     [HttpPut("{orderId:guid}/deliver")]
-    [Authorize(Roles = nameof(UserRole.Admin))]
     [EndpointName("DeliverOrder")]
     [EndpointSummary("Deliver order")]
     [EndpointDescription("Marks an order as delivered. Requires the Admin role.")]
@@ -172,7 +171,7 @@ public class OrderController(ISender _sender, ICurrentUser _currentUser) : Contr
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
-        await _sender.Send(new DeliverOrderCommand(user.IdentityUserId, orderId), ct);
+        await _sender.Send(new DeliverOrderCommand(orderId), ct);
 
         return Ok(
             new StandardSuccessResponse<object?>(

@@ -2,6 +2,7 @@ using DeliveryService.Application.Common.Exceptions;
 using DeliveryService.Application.Common.Interfaces;
 using DeliveryService.Application.Features.Shipments.Dtos;
 using DeliveryService.Application.Features.Shipments.Mappers;
+using DeliveryService.Domain.Entities.Shipments.Enums;
 using MediatR;
 
 namespace DeliveryService.Application.Features.Shipments.Commands.UpdateShipmentStatus;

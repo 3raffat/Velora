@@ -78,10 +78,6 @@ public sealed class Shipment : AuditableEntity
             totalAmount
         );
 
-        shipment.AddDomainEvent(
-            new ShipmentCreatedEvent(shipment.Id, shipment.OrderId, shipment.TrackingNumber.Value)
-        );
-
         return shipment;
     }
 

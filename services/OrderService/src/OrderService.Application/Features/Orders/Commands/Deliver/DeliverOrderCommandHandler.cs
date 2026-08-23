@@ -13,10 +13,9 @@ public sealed class DeliverOrderCommandHandler(
 {
     public async Task Handle(DeliverOrderCommand request, CancellationToken ct)
     {
-        var order = await _context.Orders.FirstOrDefaultAsync(
-            o => o.Id == request.OrderId && o.CustomerId == request.CustomerId,
-            ct
-        );
+        var order = await _context
+            .Orders.Include(o => o.Payment)
+            .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
 
         if (order is null)
             throw new OrderNotFoundException(request.OrderId);
@@ -25,10 +24,6 @@ public sealed class DeliverOrderCommandHandler(
 
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation(
-            "Order {OrderId} delivered for customer {CustomerId}",
-            order.Id,
-            request.CustomerId
-        );
+        _logger.LogInformation("Order {OrderId} delivered for customer ", order.Id);
     }
 }

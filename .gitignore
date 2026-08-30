@@ -20,7 +20,6 @@ bld/
 appsettings.Local.json
 
 .vscode/
-tests/
 
 # Visual Studio
 .vs/
@@ -42,6 +41,3 @@ coverage/
 test-results/
 playwright-report/
 .env.local
-/Frontend
-
-frontend-production-prompt.txt

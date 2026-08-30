@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Features.Orders.Exceptions;
+using OrderService.Domain.Entities.Orders.Enums;
 
 namespace OrderService.Application.Features.Orders.Commands.RejectCancellation;
 
@@ -14,7 +15,7 @@ public sealed class RejectCancellationCommandHandler(
     public async Task Handle(RejectCancellationCommand request, CancellationToken ct)
     {
         var cancellation = await _context.Cancellations.FirstOrDefaultAsync(
-            c => c.OrderId == request.OrderId,
+            c => c.OrderId == request.OrderId && c.Status == Domain.Entities.Orders.Enums.CancellationStatus.Pending,
             ct
         );
 

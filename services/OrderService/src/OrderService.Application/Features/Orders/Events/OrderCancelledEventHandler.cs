@@ -34,7 +34,6 @@ public sealed class OrderCancelledEventHandler(
         var order = cancellation.Order;
         var payment = order.Payment;
 
-        // Auto-create refund if the order had a completed payment
         if (payment is not null && payment.Status == PaymentStatus.Completed)
         {
             var refundAmount = order.TotalAmount - (cancellation.CancellationCharges ?? 0);

@@ -11,6 +11,7 @@ using OrderService.Application.Common.Response;
 using OrderService.Application.Features.Orders.Commands.ApproveCancellation;
 using OrderService.Application.Features.Orders.Commands.RejectCancellation;
 using OrderService.Application.Features.Orders.Commands.RequestCancellation;
+using OrderService.Application.Features.Orders.Queries.GetAllCancellations;
 using OrderService.Application.Features.Orders.Queries.GetCancellationByOrderId;
 
 namespace OrderService.Api.Controllers;
@@ -23,6 +24,24 @@ namespace OrderService.Api.Controllers;
 public sealed class CancellationController(ISender _sender, ICurrentUser _currentUser)
     : ControllerBase
 {
+    [HttpGet]
+    [EndpointName("GetAllCancellations")]
+    [EndpointSummary("Get all cancellations")]
+    [EndpointDescription("Gets all cancellation requests (for admin review).")]
+    [ProducesResponseType(typeof(StandardSuccessResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllCancellations(CancellationToken ct)
+    {
+        var cancellations = await _sender.Send(new GetAllCancellationsQuery(), ct);
+
+        return Ok(
+            new StandardSuccessResponse<object>(
+                cancellations,
+                StatusCodes.Status200OK,
+                "All cancellations retrieved successfully"
+            )
+        );
+    }
+
     [HttpGet("{orderId:guid}/cancellation")]
     [EndpointName("GetCancellation")]
     [EndpointSummary("Get cancellation")]

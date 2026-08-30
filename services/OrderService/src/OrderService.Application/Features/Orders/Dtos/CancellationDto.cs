@@ -4,6 +4,7 @@ namespace OrderService.Application.Features.Orders.Dtos;
 
 public sealed record CancellationDto(
     Guid Id,
+    Guid OrderId,
     string Reason,
     CancellationStatus Status,
     DateTime RequestedAt,
@@ -11,5 +12,6 @@ public sealed record CancellationDto(
     decimal OrderAmount,
     decimal? CancellationCharges,
     string? Remarks,
-    RefundDto? Refund
+    RefundDto? Refund,
+    string? OrderNumber = null
 );

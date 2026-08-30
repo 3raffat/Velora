@@ -192,20 +192,12 @@ public sealed class Order : AuditableEntity
 
     public void Cancel()
     {
-        if (OrderStatus is OrderStatus.Shipped or OrderStatus.Delivered)
+        if (OrderStatus != OrderStatus.Confirmed)
             throw new InvalidStatusException(
                 nameof(Order),
                 nameof(Cancel),
                 OrderStatus,
                 OrderStatus.Confirmed
-            );
-
-        if (OrderStatus == OrderStatus.Cancelled)
-            throw new InvalidStatusException(
-                nameof(Order),
-                nameof(Cancel),
-                OrderStatus,
-                OrderStatus.Cancelled
             );
 
         OrderStatus = OrderStatus.Cancelled;

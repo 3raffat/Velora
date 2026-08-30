@@ -78,6 +78,7 @@ public static class OrderMapper
     {
         return new CancellationDto(
             cancellation.Id,
+            cancellation.OrderId,
             cancellation.Reason,
             cancellation.Status,
             cancellation.RequestedAt,
@@ -85,7 +86,8 @@ public static class OrderMapper
             cancellation.OrderAmount.Amount,
             cancellation.CancellationCharges,
             cancellation.Remarks,
-            cancellation.Refund?.ToDto()
+            cancellation.Refund?.ToDto(),
+            cancellation.Order?.OrderNumber
         );
     }
 

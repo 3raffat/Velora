@@ -48,14 +48,14 @@ public sealed class RefundController(ISender _sender, ICurrentUser _currentUser)
     [ProducesResponseType(typeof(StandardSuccessResponse<object?>), StatusCodes.Status200OK)]
     public async Task<IActionResult> CompleteRefund(
         Guid orderId,
-        CompleteRefundRequest request,
+        [FromBody] CompleteRefundRequest? request,
         CancellationToken ct
     )
     {
         var user = _currentUser.GetCurrentUserOrSystem();
 
         await _sender.Send(
-            new CompleteRefundCommand(user.IdentityUserId, orderId, request.TransactionId),
+            new CompleteRefundCommand(user.IdentityUserId, orderId, request?.TransactionId),
             ct
         );
 

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Application.Common.Interfaces;
 using OrderService.Application.Features.Orders.Exceptions;
+using OrderService.Domain.Common.Exceptions;
 using OrderService.Domain.Common.ValueObjects;
 using OrderService.Domain.Entities.Orders;
 using OrderService.Domain.Entities.Orders.Enums;
@@ -20,6 +21,14 @@ public sealed class RequestCancellationCommandHandler(IVeloraContext _context)
 
         if (order is null)
             throw new OrderNotFoundException(request.OrderId);
+
+        if (order.OrderStatus != OrderStatus.Confirmed)
+            throw new InvalidStatusException(
+                nameof(Order),
+                nameof(Order.Cancel),
+                order.OrderStatus,
+                OrderStatus.Confirmed
+            );
 
         var hasPendingCancellation = await _context.Cancellations.AnyAsync(
             c => c.OrderId == request.OrderId && c.Status == CancellationStatus.Pending,

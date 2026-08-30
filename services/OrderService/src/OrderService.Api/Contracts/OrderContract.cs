@@ -17,7 +17,7 @@ public sealed record ApproveCancellationRequest(decimal? CancellationCharges = n
 
 public sealed record RejectCancellationRequest(string Remarks);
 
-public sealed record CompleteRefundRequest(string TransactionId);
+public sealed record CompleteRefundRequest(string? TransactionId = null);
 
 public sealed record AuthorizePayPalPaymentRequest(string PayPalOrderId);
 
